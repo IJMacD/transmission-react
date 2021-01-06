@@ -1,0 +1,19 @@
+
+Flags displays various letters, each carrying a special meaning about the state of the connection:
+?: your client unchoked the peer but the peer is not interested
+D: currently downloading from the peer (interested and not choked)
+d: your client wants to download, but peer doesn't want to send (interested and choked)
+E: peer is using Protocol Encryption (all traffic)
+e: peer is using Protocol Encryption (handshake)
+F: peer was involved in a hashfailed piece (not necessarily a bad peer, just involved)
+H: peer was obtained through DHT
+h: peer connection established via UDP hole-punching
+I: peer established an incoming connection
+K: peer unchoked your client, but your client is not interested
+L: peer has been or discovered via Local Peer Discovery
+O: optimistic unchoke
+P: peer is communicating and transporting data over uTP
+S: peer is snubbed
+U: currently uploading to the peer (interested and not choked)
+u: the peer wants your client to upload, but your client doesn't want to (interested and choked)
+X: peer was included in peer lists obtained through Peer Exchange (PEX)

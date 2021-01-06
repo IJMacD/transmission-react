@@ -22,9 +22,66 @@ th {
 td {
   border: 1px solid rgba(0,0,0,0.2);
   padding: 2px 4px;
+  cursor: pointer;
+}
+
+tr:hover td {
+  background-color: #FFD;
 }
 
 .hint {
   font-size: 0.8em;
   color: #999;
+}
+
+li {
+  cursor: pointer;
+}
+
+.PieceMap-Piece {
+  width: 10px;
+  height: 15px;
+  border: 1px solid #888;
+  margin: 2px;
+}
+
+.PieceMap-Piece--done {
+  background-color: #88F;
+  border-color: #008;
+}
+
+.PeerIcons {
+  display: flex;
+}
+
+.PeerIcons-Icon {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid rgba(0,0,0,0.3);
+  margin: 2px;
+}
+
+.PeerIcons-Icon--seed {}
+
+.PeerIcons-Icon--peer {
+  border-style: dashed;
+}
+
+.PeerIcons-Icon--downloading {
+  background-color: #CFC;
+}
+
+.PeerIcons-Icon--uploading {
+  background-color: #FCC;
+}
+
+.PeerIcons-Icon--downloading.PeerIcons-Icon--uploading {
+  background-image: linear-gradient(to right, #CFC,#CFC 50%,#FCC 50% , #FCC);
+  background-size: 150%;
+  background-position: 50%;
+}
+
+.PeerIcons-Icon--stalled {
+  opacity: 0.5;
 }

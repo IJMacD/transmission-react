@@ -189,6 +189,6 @@ export default class Transmission {
             }
         });
 
-        return res.arguments.torrents;
+        return res.arguments.torrents[0];
     }
 }
