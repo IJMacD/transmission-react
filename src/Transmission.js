@@ -19,7 +19,7 @@ export default class Transmission {
             headers["X-Transmission-Session-Id"] = this.sessionId;
         }
 
-        const res = await fetch(`${this.API_ROOT}/rpc`, {
+        const res = await fetch(this.API_ROOT, {
             method: "post",
             headers,
             body: JSON.stringify(data),
