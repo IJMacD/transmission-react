@@ -20,6 +20,8 @@ function App() {
     const id = setInterval(run, 10 * 1000);
     run();
 
+    tmRef.current.getSession().then(console.log);
+
     return () => clearInterval(id);
   }, []);
 
@@ -168,7 +170,7 @@ function TorrentDetails ({ torrent }) {
           torrent.percentDone < 1 &&
           <>
             <dt>Downloaded</dt>
-            <dd><span title={`${torrent.downloadedEver} bytes`}>{formatBytes(torrent.downloadedEver)}</span> (<span title={`${torrent.leftUntilDone} bytes`}>{formatBytes(torrent.leftUntilDone)} remaining</span> <span className="hint">{(100 * torrent.desiredAvailable / torrent.leftUntilDone).toFixed(1)}% available</span>)</dd>
+            <dd><span title={`${torrent.downloadedEver} bytes`}>{formatBytes(torrent.downloadedEver)}</span> <span className="hint">{(100*torrent.percentDone).toFixed(1)}%</span> (<span title={`${torrent.leftUntilDone} bytes`}>{formatBytes(torrent.leftUntilDone)} remaining</span> <span className="hint">{(100 * torrent.desiredAvailable / torrent.leftUntilDone).toFixed(1)}% available</span>)</dd>
           </>
         }
         <dt>Added</dt>
@@ -219,6 +221,11 @@ function TorrentDetails ({ torrent }) {
 
 function formatDuration (seconds) {
   const out = [];
+  if (seconds > 24 * 60 * 60) {
+    const days = Math.floor(seconds / (24 * 60 * 60));
+    seconds -= days * 24 * 60 * 60;
+    out.push(days + (days === 1 ? " day" : " days"));
+  }
   if (seconds > 60 * 60) {
     const hours = Math.floor(seconds / (60 * 60));
     seconds -= hours * 60 * 60;
@@ -239,7 +246,7 @@ function PieceMap ({ pieces, count }) {
   return (
     <div style={{ display: "flex", flexWrap: "wrap" }}>
       {
-        [...Array(count)].map((_,i) => <div key={i} className={`PieceMap-Piece ${isPieceDone(pieces, i)?`PieceMap-Piece--done`:""}`} />)
+        [...Array(count)].map((_,i) => <div key={i} title={`Piece ${i}`} className={`PieceMap-Piece ${isPieceDone(pieces, i)?`PieceMap-Piece--done`:""}`} />)
       }
     </div>
   );
@@ -260,7 +267,7 @@ function PeerIcons ({ peers }) {
           const isSeed = p.progress === 1;
           const transferring = p.rateToClient > 0 || p.rateToPeer > 0;
           const className = `PeerIcons-Icon ${isSeed?"PeerIcons-Icon--seed":"PeerIcons-Icon--peer"} ${p.isDownloadingFrom?"PeerIcons-Icon--downloading":""} ${p.isUploadingTo?"PeerIcons-Icon--uploading":""} ${transferring?"":"PeerIcons-Icon--stalled"}`;
-          return <div key={`${p.address}/${p.port}`} className={className} />;
+          return <div key={`${p.address}/${p.port}`} className={className} title={`[${p.address}]:${p.port} ${(100*p.progress).toFixed(1)}%\n⬇️ ${formatBytesPerSecond(p.rateToClient)}\n⬆️ ${formatBytesPerSecond(p.rateToPeer)}`} />;
         })
       }
     </div>
