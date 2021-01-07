@@ -8,9 +8,13 @@ function App() {
   const tmRef = useRef(new Transmission(process.env.REACT_APP_API_ROOT));
   const [ canvasRef, pushData ] = useGraph({
     horizontalGridlines: 500 * 1024,
+    colour: ["#CFC","#FCC","#5F5","#F55"],
+    style: ["area","area","line","line"],
   });
   const [ selectedTorrent, setSelectedTorrent ] = useState(-1);
   const [ torrentData, setTorrentData ] = useState(null);
+  const downloadAverage = useRef(0);
+  const uploadAverage = useRef(0);
 
   useEffect(() => {
     const run = () => {
@@ -31,8 +35,11 @@ function App() {
     const totalDown = activeTorrents.reduce((total,torrent) => total + torrent.rateDownload, 0);
     const totalUp = activeTorrents.reduce((total,torrent) => total + torrent.rateUpload, 0);
 
-    pushData(totalDown, totalUp);
-  }, [torrents]);
+    downloadAverage.current = downloadAverage.current * 0.9 + totalDown * 0.1;
+    uploadAverage.current = uploadAverage.current * 0.9 + totalUp * 0.1;
+
+    pushData(totalDown, totalUp, downloadAverage.current, uploadAverage.current);
+  }, [torrents, pushData]);
 
   useEffect(() => {
     if (selectedTorrent >= 0) {
@@ -59,7 +66,7 @@ function App() {
   return (
     <div className="App">
       <h1>{torrents.length} torrents</h1>
-      <p>⬇️ {formatBytesPerSecond(totalDown)} ⬆️ {formatBytesPerSecond(totalUp)}</p>
+      <p>⬇️ {formatBytesPerSecond(totalDown)} ({formatBytesPerSecond(downloadAverage.current)}) ⬆️ {formatBytesPerSecond(totalUp)} ({formatBytesPerSecond(uploadAverage.current)})</p>
       <canvas ref={canvasRef} />
       {
         selectedTorrent >= 0 ?

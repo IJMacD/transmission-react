@@ -1,9 +1,10 @@
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useCallback } from "react";
 
 export function useGraph ({
     limit = 60,
     colour = ["#8F8","#F88"],
     horizontalGridlines = 0,
+    style = "area",
 } = {}) {
     /** @type {React.MutableRefObject<HTMLCanvasElement>} */
     const ref = useRef();
@@ -14,20 +15,23 @@ export function useGraph ({
      *
      * @param  {number[]} values
      */
-    function pushData (...values) {
-        /** @type {number[][]}] */
-        const newDataSeries = [];
+    const pushData = useCallback((...values) => {
 
-        for (let i = 0; i < values.length; i++) {
-            const newPoints = [ values[i], ...(dataSeries[i] || []) ];
-            if (newPoints.length > limit) {
-                newPoints.length = limit;
+        setDataSeries(dataSeries => {
+            /** @type {number[][]}] */
+            const newDataSeries = [];
+
+            for (let i = 0; i < values.length; i++) {
+                const newPoints = [ values[i], ...(dataSeries[i] || []) ];
+                if (newPoints.length > limit) {
+                    newPoints.length = limit;
+                }
+                newDataSeries[i] = newPoints;
             }
-            newDataSeries[i] = newPoints;
-        }
 
-        setDataSeries(newDataSeries);
-    }
+            return newDataSeries
+        });
+    }, [setDataSeries, limit]);
 
     useEffect(() => {
         if (ref.current) {
@@ -42,23 +46,40 @@ export function useGraph ({
 
             ctx.clearRect(0,0,width,height);
 
-            ctx.globalAlpha = 0.5;
-
             for (let s = 0; s < dataSeries.length; s++) {
                 const dataPoints = dataSeries[s];
 
+                const st = style instanceof Array ? style[s] : style;
+                const co = colour instanceof Array ? colour[s] : colour;
+
                 ctx.beginPath();
-                ctx.moveTo(0, height);
+                if (st === "area") {
+                    ctx.moveTo(0, height);
+                } else if (dataPoints.length > 0) {
+                    ctx.moveTo(0, height - dataPoints[0] * yScale)
+                }
 
                 for (let i = 0; i < dataPoints.length; i++) {
                     ctx.lineTo(i * xStep, height - dataPoints[i] * yScale);
                 }
 
-                ctx.lineTo((dataPoints.length - 1) * xStep, height);
-                ctx.closePath();
+                if (st === "area") {
+                    ctx.lineTo((dataPoints.length - 1) * xStep, height);
+                    ctx.closePath();
 
-                ctx.fillStyle = colour instanceof Array ? colour[s] : colour;
-                ctx.fill();
+                    ctx.globalAlpha = 0.5;
+
+                    ctx.fillStyle = co;
+                    ctx.fill();
+                } else {
+
+                    ctx.globalAlpha = 1;
+
+                    ctx.lineWidth = devicePixelRatio;
+
+                    ctx.strokeStyle = co;
+                    ctx.stroke();
+                }
             }
 
             if (horizontalGridlines > 0) {
@@ -73,7 +94,7 @@ export function useGraph ({
                 ctx.stroke();
             }
         }
-    }, [dataSeries, limit, colour, horizontalGridlines]);
+    }, [dataSeries, limit, colour, horizontalGridlines, style]);
 
     return [ ref, pushData ];
 }
