@@ -1,12 +1,27 @@
 import { formatBytesPerSecond, formatBytes, formatDuration } from './util';
+import { useGraph } from './useGraph';
+import { useEffect } from 'react';
 
 export function TorrentDetails({ torrent }) {
+  const [ canvasRef, pushData ] = useGraph({
+    horizontalGridlines: 500 * 1024,
+    colour: ["#CFC","#FCC"],
+    style: ["area","area"],
+  });
+
+  useEffect(() => {
+    if (torrent) {
+        pushData(torrent.rateDownload, torrent.rateUpload);
+    }
+  }, [torrent, pushData])
+
   if (!torrent)
     return null;
 
   return (
     <div>
       <h2>{torrent.name}</h2>
+      <canvas ref={canvasRef} />
       <dl>
         <dt>Size</dt>
         <dd title={`${torrent.sizeWhenDone} bytes`}>{formatBytes(torrent.sizeWhenDone)}</dd>

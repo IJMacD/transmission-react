@@ -71,7 +71,7 @@ function App() {
     <div className="App">
       <h1>{torrents.length} torrents</h1>
       <p>⬇️ {formatBytesPerSecond(totalDown)} ({formatBytesPerSecond(downloadAverage.current)}) ⬆️ {formatBytesPerSecond(totalUp)} ({formatBytesPerSecond(uploadAverage.current)})</p>
-      <canvas ref={canvasRef} />
+      { selectedTorrent < 0 && <canvas ref={canvasRef} /> }
       {
         selectedTorrent >= 0 ?
           <>
