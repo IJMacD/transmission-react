@@ -73,6 +73,7 @@ export default class Transmission {
                     "metadataPercentComplete",
                     "name",
                     "peer-limit",
+                    "peers",
                     "peersConnected",
                     "peersGettingFromUs",
                     "peersSendingToUs",

@@ -6,6 +6,7 @@ import { useGraph } from './useGraph';
 import { TorrentTable } from './TorrentTable';
 import { TorrentDetails } from './TorrentDetails';
 import { TorrentList } from './TorrentList';
+import { PeerStats } from './PeerStats';
 
 function App() {
   const [torrents, setTorrents] = useState([]);
@@ -19,6 +20,7 @@ function App() {
   const [ torrentData, setTorrentData ] = useState(null);
   const downloadAverage = useRef(0);
   const uploadAverage = useRef(0);
+  const [ page, setPage ] = useState("torrents");
 
   useEffect(() => {
     const run = () => {
@@ -69,11 +71,21 @@ function App() {
 
   return (
     <div className="App">
-      <h1>{torrents.length} torrents</h1>
       <p>⬇️ {formatBytesPerSecond(totalDown)} ({formatBytesPerSecond(downloadAverage.current)}) ⬆️ {formatBytesPerSecond(totalUp)} ({formatBytesPerSecond(uploadAverage.current)})</p>
+      <button onClick={() => setPage("torrents")} disabled={page === "torrents"}>Torrents</button>
+      <button onClick={() => setPage("peers")} disabled={page === "peers"}>Peers</button>
       { selectedTorrent < 0 && <canvas ref={canvasRef} /> }
       {
-        selectedTorrent >= 0 ?
+        page === "peers" &&
+        <div>
+          <h1>Peers</h1>
+          <PeerStats torrents={torrents} />
+        </div>
+      }
+      { page === "torrents" &&
+        <div>
+          <h1>{torrents.length} torrents</h1>
+          { selectedTorrent >= 0 ?
           <>
             <button onClick={() => setSelectedTorrent(-1)}>Back</button>
             <TorrentDetails torrent={torrentData} />
@@ -87,6 +99,8 @@ function App() {
             <h2>Inactive and Finished ({inactiveFinishedTorrents.length})</h2>
             <TorrentList torrents={sortBy(inactiveFinishedTorrents, "name")} onTorrentClick={setSelectedTorrent} />
           </>
+      }
+    </div>
       }
     </div>
   );
