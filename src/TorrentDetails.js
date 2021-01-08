@@ -1,4 +1,4 @@
-import { formatBytesPerSecond, formatBytes, formatDuration } from './util';
+import { formatBytesPerSecond, formatBytes, formatDuration, countSeeds } from './util';
 import { useGraph } from './useGraph';
 import { useEffect } from 'react';
 
@@ -18,9 +18,11 @@ export function TorrentDetails({ torrent }) {
   if (!torrent)
     return null;
 
+  const seedCount = countSeeds(torrent);
+
   return (
     <div>
-      <h2>{torrent.name}</h2>
+      <h2>{torrent.name} <a href={torrent.magnetLink} style={{fontSize:"0.5em",textDecoration:"none"}}>🧲</a></h2>
       <canvas ref={canvasRef} />
       <dl>
         <dt>Size</dt>
@@ -56,6 +58,8 @@ export function TorrentDetails({ torrent }) {
           {formatBytes(torrent.uploadedEver)} <span className="hint">({torrent.uploadRatio})</span>
           {torrent.seedRatioLimit > torrent.uploadRatio && <> [{formatBytes(torrent.seedRatioLimit * torrent.sizeWhenDone)} <span className="hint">({torrent.seedRatioLimit})</span>]</>}
         </dd>
+        <dt>Seeds</dt>
+        <dd>{seedCount}</dd>
         {torrent.peers.length > 0 &&
           <>
             <dt>Peers</dt>

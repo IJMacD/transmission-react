@@ -41,3 +41,7 @@ export function formatDuration (seconds) {
   }
   return out.join(" ");
 }
+
+export function countSeeds(torrent) {
+  return Math.max(0, ...torrent.trackerStats.map(s => s.seederCount));
+}

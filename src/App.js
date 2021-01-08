@@ -86,21 +86,21 @@ function App() {
         <div>
           <h1>{torrents.length} torrents</h1>
           { selectedTorrent >= 0 ?
-          <>
-            <button onClick={() => setSelectedTorrent(-1)}>Back</button>
-            <TorrentDetails torrent={torrentData} />
-          </>
-          :
-          <>
-            <h2>Active ({activeTorrents.length})</h2>
-            <TorrentTable torrents={sortBy(activeTorrents, "uploadedEver", true)} onTorrentClick={setSelectedTorrent} />
-            <h2>Inactive and Unfinished ({inactiveUnfinishedTorrents.length})</h2>
-            <TorrentList torrents={sortBy(inactiveUnfinishedTorrents, "percentDone", true)} onTorrentClick={setSelectedTorrent} />
-            <h2>Inactive and Finished ({inactiveFinishedTorrents.length})</h2>
-            <TorrentList torrents={sortBy(inactiveFinishedTorrents, "name")} onTorrentClick={setSelectedTorrent} />
-          </>
-      }
-    </div>
+            <>
+              <button onClick={() => setSelectedTorrent(-1)}>Back</button>
+              <TorrentDetails torrent={torrentData} />
+            </>
+            :
+            <>
+              <h2>Active ({activeTorrents.length})</h2>
+              <TorrentTable torrents={sortBy(activeTorrents, "uploadedEver", true)} onTorrentClick={setSelectedTorrent} onStopClick={id => tmRef.current.stopTorrent(id)} />
+              <h2>Inactive and Unfinished ({inactiveUnfinishedTorrents.length})</h2>
+              <TorrentList torrents={sortBy(inactiveUnfinishedTorrents, "percentDone", true)} onTorrentClick={setSelectedTorrent} />
+              <h2>Inactive and Finished ({inactiveFinishedTorrents.length})</h2>
+              <TorrentList torrents={sortBy(inactiveFinishedTorrents, "name")} onTorrentClick={setSelectedTorrent} onStartClick={id => tmRef.current.startTorrent(id)} />
+            </>
+          }
+        </div>
       }
     </div>
   );

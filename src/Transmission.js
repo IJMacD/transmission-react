@@ -96,6 +96,7 @@ export default class Transmission {
                     "status",
                     "totalSize",
                     "torrentFile",
+                    "trackerStats",
                     "uploadedEver",
                     "uploadLimit",
                     "uploadLimited",
@@ -251,5 +252,13 @@ export default class Transmission {
         });
 
         return res.arguments;
+    }
+
+    startTorrent (ids) {
+        return this.rpc({ method: "torrent-start", arguments: { ids } });
+    }
+
+    stopTorrent (ids) {
+        return this.rpc({ method: "torrent-stop", arguments: { ids } });
     }
 }
