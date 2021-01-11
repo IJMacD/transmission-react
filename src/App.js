@@ -7,6 +7,7 @@ import { TorrentTable } from './TorrentTable';
 import { TorrentDetails } from './TorrentDetails';
 import { TorrentList } from './TorrentList';
 import { PeerStats } from './PeerStats';
+import { useSavedState } from './useSavedState';
 
 function App() {
   const [torrents, setTorrents] = useState([]);
@@ -20,6 +21,8 @@ function App() {
   const [ torrentData, setTorrentData ] = useState(null);
   const downloadAverage = useRef(0);
   const uploadAverage = useRef(0);
+  const [ downloadMax, setDownloadMax ] = useSavedState("TRANSMISSION_DOWNLOAD_MAX", 0);
+  const [ uploadMax, setUploadMax ] = useSavedState("TRANSMISSION_UPLOAD_MAX", 0);
   const [ page, setPage ] = useState("torrents");
 
   useEffect(() => {
@@ -44,8 +47,11 @@ function App() {
     downloadAverage.current = downloadAverage.current * 0.9 + totalDown * 0.1;
     uploadAverage.current = uploadAverage.current * 0.9 + totalUp * 0.1;
 
+    setDownloadMax(downloadMax => Math.max(downloadMax, totalDown));
+    setUploadMax(uploadMax => Math.max(uploadMax, totalUp));
+
     pushData(totalDown, totalUp, downloadAverage.current, uploadAverage.current);
-  }, [torrents, pushData]);
+  }, [torrents, pushData, setDownloadMax, setUploadMax]);
 
   useEffect(() => {
     if (selectedTorrent >= 0) {
@@ -71,7 +77,7 @@ function App() {
 
   return (
     <div className="App">
-      <p>⬇️ {formatBytesPerSecond(totalDown)} ({formatBytesPerSecond(downloadAverage.current)}) ⬆️ {formatBytesPerSecond(totalUp)} ({formatBytesPerSecond(uploadAverage.current)})</p>
+      <p>⬇️ {formatBytesPerSecond(totalDown)} (Avg: {formatBytesPerSecond(downloadAverage.current)}, Max: {formatBytesPerSecond(downloadMax)}) ⬆️ {formatBytesPerSecond(totalUp)} (Avg: {formatBytesPerSecond(uploadAverage.current)}, Max: {formatBytesPerSecond(uploadMax)})</p>
       <button onClick={() => setPage("torrents")} disabled={page === "torrents"}>Torrents</button>
       <button onClick={() => setPage("peers")} disabled={page === "peers"}>Peers</button>
       { selectedTorrent < 0 && <canvas ref={canvasRef} /> }
