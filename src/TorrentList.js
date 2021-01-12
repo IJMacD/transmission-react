@@ -6,7 +6,7 @@ export function TorrentList({ torrents, onTorrentClick, onStartClick }) {
   </ul>;
 }
 
-function TorrentEntry({ torrent, onStartClick }) {
+export function TorrentEntry({ torrent, onStartClick }) {
   const { id, isFinished, name, rateDownload, rateUpload, percentDone } = torrent;
   const seedCount = countSeeds(torrent);
   return (

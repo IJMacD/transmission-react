@@ -6,6 +6,7 @@ import { useGraph } from './useGraph';
 import { TorrentTable } from './TorrentTable';
 import { TorrentDetails } from './TorrentDetails';
 import { TorrentList } from './TorrentList';
+import { TorrentTreeList } from './TorrentTreeList';
 import { PeerStats } from './PeerStats';
 import { useSavedState } from './useSavedState';
 
@@ -103,7 +104,7 @@ function App() {
               <h2>Inactive and Unfinished ({inactiveUnfinishedTorrents.length})</h2>
               <TorrentList torrents={sortBy(inactiveUnfinishedTorrents, "percentDone", true)} onTorrentClick={setSelectedTorrent} />
               <h2>Inactive and Finished ({inactiveFinishedTorrents.length})</h2>
-              <TorrentList torrents={sortBy(inactiveFinishedTorrents, "name")} onTorrentClick={setSelectedTorrent} onStartClick={id => tmRef.current.startTorrent(id)} />
+              <TorrentTreeList torrents={sortBy(inactiveFinishedTorrents, "name")} onTorrentClick={setSelectedTorrent} onStartClick={id => tmRef.current.startTorrent(id)} />
             </>
           }
         </div>
