@@ -78,6 +78,14 @@ function App() {
     }
   }, [selectedTorrent]);
 
+  function handleAddLink () {
+    const link = prompt("Enter magnet link:", "magnet://");
+
+    if (link) {
+      tmRef.current.addMagnet(link);
+    }
+  }
+
   const activeTorrents = torrents.filter(isActive);
   const inactiveUnfinishedTorrents = torrents.filter(t => !isActive(t) && t.percentDone < 1);
   const inactiveFinishedTorrents = torrents.filter(t => !isActive(t) && t.percentDone === 1);
@@ -90,6 +98,7 @@ function App() {
       <p>⬇️ {formatBytesPerSecond(totalDown)} (Avg: {formatBytesPerSecond(downloadAverage.current)}, Max: {formatBytesPerSecond(downloadMax)}) ⬆️ {formatBytesPerSecond(totalUp)} (Avg: {formatBytesPerSecond(uploadAverage.current)}, Max: {formatBytesPerSecond(uploadMax)})</p>
       <button onClick={() => setPage("torrents")} disabled={page === "torrents"}>Torrents</button>
       <button onClick={() => setPage("peers")} disabled={page === "peers"}>Peers</button>
+      <button onClick={handleAddLink}>Add Magnet</button>
       { selectedTorrent < 0 && <canvas ref={canvasRef} /> }
       {
         page === "peers" &&

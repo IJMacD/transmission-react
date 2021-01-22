@@ -266,11 +266,24 @@ export default class Transmission {
         return res.arguments;
     }
 
+    /**
+     * @param {number|number[]} ids
+     */
     startTorrent (ids) {
         return this.rpc({ method: "torrent-start", arguments: { ids } });
     }
 
+    /**
+     * @param {number|number[]} ids
+     */
     stopTorrent (ids) {
         return this.rpc({ method: "torrent-stop", arguments: { ids } });
+    }
+
+    /**
+     * @param {string} filename
+     */
+    addMagnet (filename) {
+        return this.rpc({ method: "torrent-add", arguments: { filename }});
     }
 }
