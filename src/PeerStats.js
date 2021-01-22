@@ -51,12 +51,12 @@ function IPv4Map ({ peers }) {
 
                 let [x, y, w, h] = ipv4Block2Area(octets.slice(0,1), pixelWidth, pixelHeight);
 
-                ctx.fillStyle = "#FCC";
+                ctx.fillStyle = "#CFC";
                 ctx.fillRect(x, y, w, h);
 
                 [x, y, w, h] = ipv4Block2Area(octets.slice(0,2), pixelWidth, pixelHeight);
 
-                ctx.fillStyle = "#C88";
+                ctx.fillStyle = "#8C8";
                 ctx.fillRect(x, y, w, h);
             }
 

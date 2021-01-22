@@ -85,3 +85,15 @@ li {
 .PeerIcons-Icon--stalled {
   opacity: 0.5;
 }
+
+.SearchForm {
+  display: flex;
+}
+
+.SearchBox {
+  flex: 1;
+  font-size: 22pt;
+  padding: 4px 8px;
+  border: 1px solid #00000080;
+  border-radius: 5px;
+}

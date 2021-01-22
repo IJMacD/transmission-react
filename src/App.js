@@ -9,6 +9,7 @@ import { TorrentList } from './TorrentList';
 import { TorrentTreeList } from './TorrentTreeList';
 import { PeerStats } from './PeerStats';
 import { useSavedState } from './useSavedState';
+import SearchPage from './SearchPage';
 
 /**
  * @typedef Torrent
@@ -98,6 +99,7 @@ function App() {
       <p>⬇️ {formatBytesPerSecond(totalDown)} (Avg: {formatBytesPerSecond(downloadAverage.current)}, Max: {formatBytesPerSecond(downloadMax)}) ⬆️ {formatBytesPerSecond(totalUp)} (Avg: {formatBytesPerSecond(uploadAverage.current)}, Max: {formatBytesPerSecond(uploadMax)})</p>
       <button onClick={() => setPage("torrents")} disabled={page === "torrents"}>Torrents</button>
       <button onClick={() => setPage("peers")} disabled={page === "peers"}>Peers</button>
+      <button onClick={() => setPage("search")} disabled={page === "search"}>Search</button>
       <button onClick={handleAddLink}>Add Magnet</button>
       { selectedTorrent < 0 && <canvas ref={canvasRef} /> }
       {
@@ -125,6 +127,12 @@ function App() {
               <TorrentTreeList torrents={sortBy(inactiveFinishedTorrents, "name")} onTorrentClick={setSelectedTorrent} onStartClick={id => tmRef.current.startTorrent(id)} />
             </>
           }
+        </div>
+      }
+      { page === "search" &&
+        <div>
+          <h1>Search</h1>
+          <SearchPage transmission={tmRef.current} />
         </div>
       }
     </div>
