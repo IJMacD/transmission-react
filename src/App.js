@@ -90,6 +90,7 @@ function App() {
   const activeTorrents = torrents.filter(isActive);
   const inactiveUnfinishedTorrents = torrents.filter(t => !isActive(t) && t.percentDone < 1);
   const inactiveFinishedTorrents = torrents.filter(t => !isActive(t) && t.percentDone === 1);
+  const downloadingTorrents = torrents.filter(t => t.rateDownload > 0);
 
   const totalDown = activeTorrents.reduce((total,torrent) => total + torrent.rateDownload, 0);
   const totalUp = activeTorrents.reduce((total,torrent) => total + torrent.rateUpload, 0);
@@ -119,6 +120,12 @@ function App() {
             </>
             :
             <>
+              { downloadingTorrents.length > 0 &&
+                <>
+                  <h2>Downloading ({downloadingTorrents.length})</h2>
+                  <TorrentTable torrents={sortBy(downloadingTorrents, "percentDone", true)} onTorrentClick={setSelectedTorrent} downloadMode={true} />
+                </>
+              }
               <h2>Active ({activeTorrents.length})</h2>
               <TorrentTable torrents={sortBy(activeTorrents, "uploadedEver", true)} onTorrentClick={setSelectedTorrent} onStopClick={id => tmRef.current.stopTorrent(id)} />
               <h2>Inactive and Unfinished ({inactiveUnfinishedTorrents.length})</h2>

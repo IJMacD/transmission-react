@@ -19,7 +19,7 @@ export function sortBy (array, field, desc=false) {
   return array.sort(sorter);
 }
 
-export function formatDuration (seconds) {
+export function formatDuration (seconds, fractionalSeconds = false) {
   const out = [];
   if (seconds > 24 * 60 * 60) {
     const days = Math.floor(seconds / (24 * 60 * 60));
@@ -37,6 +37,9 @@ export function formatDuration (seconds) {
     out.push(minutes + (minutes === 1 ? " minute" : " minutes"));
   }
   if (seconds > 0) {
+    if (!fractionalSeconds) {
+      seconds = Math.round(seconds);
+    }
     out.push(seconds + (seconds === 1 ? " second" : " seconds"));
   }
   return out.join(" ");

@@ -1,17 +1,21 @@
 import { formatBytesPerSecond, formatBytes, formatDuration, countSeeds } from './util';
 import { useGraph } from './useGraph';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 export function TorrentDetails({ torrent }) {
   const [ canvasRef, pushData ] = useGraph({
     horizontalGridlines: 500 * 1024,
-    colour: ["#CFC","#FCC"],
-    style: ["area","area"],
+    colour: ["#CFC","#FCC","#8D8","#D88"],
+    style: ["area","area","line","line"],
   });
+  const [ downloadAverage, setDownloadAverage ] = useState(torrent ? torrent.rateDownload : 0);
+  const [ uploadAverage, setUploadAverage ] = useState(torrent ? torrent.rateUpload : 0);
 
   useEffect(() => {
     if (torrent) {
-        pushData(torrent.rateDownload, torrent.rateUpload);
+        pushData(torrent.rateDownload, torrent.rateUpload, downloadAverage, uploadAverage);
+        setDownloadAverage(downloadAverage => downloadAverage * 0.9 + torrent.rateDownload * 0.1);
+        setUploadAverage(uploadAverage => uploadAverage * 0.9 + torrent.rateUpload * 0.1);
     }
   }, [torrent, pushData])
 
@@ -41,6 +45,13 @@ export function TorrentDetails({ torrent }) {
           </>}
         <dt>Duration</dt>
         <dd>{formatDuration(torrent.secondsDownloading)}</dd>
+        {
+          torrent.desiredAvailable > 0 && downloadAverage > 0 &&
+          <>
+            <dt>ETA</dt>
+            <dd>{new Date(Date.now() + (torrent.desiredAvailable / downloadAverage) * 1000).toISOString()} <span className="hint">in {formatDuration(torrent.desiredAvailable / downloadAverage)}</span></dd>
+          </>
+        }
         {torrent.rateDownload > 0 &&
           <>
             <dt>Current Speed</dt>
@@ -48,11 +59,27 @@ export function TorrentDetails({ torrent }) {
           </>}
         <dt>Average Speed</dt>
         <dd>{formatBytesPerSecond(torrent.downloadedEver / torrent.secondsDownloading)}</dd>
-        {torrent.rateUpload > 0 &&
+        {
+        downloadAverage > 0 &&
+          <>
+            <dt>Recent Average Speed</dt>
+            <dd>{formatBytesPerSecond(downloadAverage)}</dd>
+          </>
+        }
+        {
+        torrent.rateUpload > 0 &&
           <>
             <dt>Upload Speed</dt>
             <dd>{formatBytesPerSecond(torrent.rateUpload)}</dd>
-          </>}
+          </>
+        }
+        {
+        downloadAverage > 0 &&
+          <>
+            <dt>Recent Average Upload Speed</dt>
+            <dd>{formatBytesPerSecond(uploadAverage)}</dd>
+          </>
+        }
         <dt>Uploaded</dt>
         <dd>
           {formatBytes(torrent.uploadedEver)} <span className="hint">({torrent.uploadRatio})</span>

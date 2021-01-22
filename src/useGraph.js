@@ -45,7 +45,7 @@ export function useGraph ({
             const height = 200 * devicePixelRatio;
             ref.current.width = width;
             ref.current.height = height;
-            const xStep = width / limit;
+            const xStep = width / (limit - 1);
             const maxVal = getMaxValue(dataSeries);
             const yScale = height / maxVal;
 
