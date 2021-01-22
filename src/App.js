@@ -10,7 +10,16 @@ import { TorrentTreeList } from './TorrentTreeList';
 import { PeerStats } from './PeerStats';
 import { useSavedState } from './useSavedState';
 
+/**
+ * @typedef Torrent
+ * @property {number} id
+ * @property {number} rateDownload
+ * @property {number} rateUpload
+ * @property {number} percentDone
+ */
+
 function App() {
+  /** @type {[ Torrent[], import('react').Dispatch<import('react').SetStateAction<Torrent[]>> ]} */
   const [torrents, setTorrents] = useState([]);
   const tmRef = useRef(new Transmission(process.env.REACT_APP_API_ROOT));
   const [ canvasRef, pushData ] = useGraph({
@@ -29,12 +38,12 @@ function App() {
   useEffect(() => {
     const run = () => {
       const tm = tmRef.current;
-      tm.getTorrents().then(setTorrents);
+      tm.getTorrents().then(setTorrents, console.log);
     };
     const id = setInterval(run, 10 * 1000);
     run();
 
-    tmRef.current.getSession().then(console.log);
+    tmRef.current.getSession().then(console.log, console.log);
 
     return () => clearInterval(id);
   }, []);

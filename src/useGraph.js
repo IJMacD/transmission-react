@@ -1,5 +1,10 @@
 import { useRef, useState, useEffect, useCallback } from "react";
 
+/**
+ *
+ * @param {object} param0
+ * @returns {[ React.MutableRefObject<HTMLCanvasElement>, (...data: number[]) => void ]}
+ */
 export function useGraph ({
     limit = 60,
     colour = ["#8F8","#F88"],
@@ -8,7 +13,7 @@ export function useGraph ({
 } = {}) {
     /** @type {React.MutableRefObject<HTMLCanvasElement>} */
     const ref = useRef();
-    /** @type {[number[][], (number[][]) => void]} */
+    /** @type {[number[][], import("react").Dispatch<import("react").SetStateAction<number[][]>>]} */
     const [ dataSeries, setDataSeries ] = useState([]);
 
     /**

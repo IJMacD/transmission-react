@@ -11,7 +11,6 @@ export default class Transmission {
         }
 
         const headers = {
-            "Authorization": "Basic  ",
             "Content-Type": "application/json",
         };
 
@@ -23,15 +22,28 @@ export default class Transmission {
             method: "post",
             headers,
             body: JSON.stringify(data),
+            credentials: "include",
         });
 
         if (res.status === 409) {
             this.sessionId = res.headers.get("x-transmission-session-id");
 
+            if (!this.sessionId) {
+                throw Error("Couldn't retrieve Transmission Session ID");
+            }
+
             return this.rpc(data, retry - 1);
         }
 
-        return res.json();
+        if (res.status === 401) {
+            throw Error("Authorization needed");
+        }
+
+        if (res.ok) {
+            return res.json();
+        }
+
+        throw Error(res.statusText);
     }
 
     async getTorrents () {

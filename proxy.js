@@ -18,6 +18,7 @@ const server = http.createServer((request, response) => {
             "Access-Control-Allow-Method": request.headers['access-control-request-method'],
             "Access-Control-Allow-Headers": request.headers['access-control-request-headers'],
             "Access-Control-Max-Age": 600,
+            "Access-Control-Allow-Credentials": "true",
         });
 
         response.end();
@@ -34,7 +35,8 @@ const server = http.createServer((request, response) => {
             response.writeHead(res.statusCode, res.statusMessage, {
                 ...res.headers,
                 "Access-Control-Allow-Origin": request.headers.origin,
-                "Access-Control-Expose-Headers": "*",
+                "Access-Control-Expose-Headers": "x-transmission-session-id",
+                "Access-Control-Allow-Credentials": "true",
             });
 
             res.pipe(response, { end: true });
