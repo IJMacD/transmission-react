@@ -2,7 +2,14 @@ import { formatBytesPerSecond, formatBytes, formatDuration, countSeeds } from '.
 import { useGraph } from './useGraph';
 import { useEffect, useState } from 'react';
 
-export function TorrentDetails({ torrent }) {
+/**
+ *
+ * @param {object} props
+ * @param {object} props.torrent
+ * @param {import('./Transmission').default} props.transmission
+ * @returns
+ */
+export function TorrentDetails({ torrent, transmission }) {
   const [ canvasRef, pushData ] = useGraph({
     horizontalGridlines: 500 * 1024,
     colour: ["#CFC","#FCC","#8D8","#D88"],
@@ -21,6 +28,14 @@ export function TorrentDetails({ torrent }) {
 
   if (!torrent)
     return null;
+
+  function handleMove () {
+    const location = prompt("Enter new location", torrent.downloadDir);
+
+    if (location && location.length) {
+      transmission.moveTorrent(torrent.id, location);
+    }
+  }
 
   const seedCount = countSeeds(torrent);
 
@@ -45,6 +60,8 @@ export function TorrentDetails({ torrent }) {
           </>}
         <dt>Duration</dt>
         <dd>{formatDuration(torrent.secondsDownloading)}</dd>
+        <dt>Location</dt>
+        <dd>{torrent.downloadDir} <button onClick={handleMove}>Move</button></dd>
         {
           torrent.desiredAvailable > 0 && downloadAverage > 0 &&
           <>

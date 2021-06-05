@@ -286,4 +286,13 @@ export default class Transmission {
     addMagnet (filename) {
         return this.rpc({ method: "torrent-add", arguments: { filename }});
     }
+
+    /**
+     * @param {number|string} ids
+     * @param {string} location
+     */
+    moveTorrent (ids, location) {
+        const move = true;
+        return this.rpc({ method: "torrent-set-location", arguments: { ids, location, move }});
+    }
 }

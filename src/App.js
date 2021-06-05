@@ -116,7 +116,7 @@ function App() {
           { selectedTorrent >= 0 ?
             <>
               <button onClick={() => setSelectedTorrent(-1)}>Back</button>
-              <TorrentDetails torrent={torrentData} />
+              <TorrentDetails torrent={torrentData} transmission={tmRef.current} />
             </>
             :
             <>
