@@ -1,6 +1,14 @@
 export default class Transmission {
     sessionId = null;
 
+    static STATUS_STOPPED        = 0; /* Torrent is stopped */
+    static STATUS_CHECK_WAIT     = 1; /* Queued to check files */
+    static STATUS_CHECK          = 2; /* Checking files */
+    static STATUS_DOWNLOAD_WAIT  = 3; /* Queued to download */
+    static STATUS_DOWNLOAD       = 4; /* Downloading */
+    static STATUS_SEED_WAIT      = 5; /* Queued to seed */
+    static STATUS_SEED           = 6; /* Seeding */
+
     constructor (API_ROOT) {
         this.API_ROOT = API_ROOT;
     }
@@ -294,5 +302,20 @@ export default class Transmission {
     moveTorrent (ids, location) {
         const move = true;
         return this.rpc({ method: "torrent-set-location", arguments: { ids, location, move }});
+    }
+
+    /**
+     * @param {number|string} ids
+     */
+    startTorrent (ids) {
+        const move = true;
+        return this.rpc({ method: "torrent-start", arguments: { ids }});
+    }
+
+    /**
+     * @param {number|string} ids
+     */
+    stopTorrent (ids) {
+        return this.rpc({ method: "torrent-stop", arguments: { ids }});
     }
 }

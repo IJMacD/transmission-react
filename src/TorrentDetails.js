@@ -1,6 +1,7 @@
 import { formatBytesPerSecond, formatBytes, formatDuration, countSeeds } from './util';
 import { useGraph } from './useGraph';
 import { useEffect, useState } from 'react';
+import Transmission from './Transmission';
 
 /**
  *
@@ -37,6 +38,14 @@ export function TorrentDetails({ torrent, transmission }) {
     }
   }
 
+  function handleStop () {
+    transmission.stopTorrent(torrent.id);
+  }
+
+  function handleStart () {
+    transmission.startTorrent(torrent.id);
+  }
+
   const seedCount = countSeeds(torrent);
 
   return (
@@ -44,6 +53,19 @@ export function TorrentDetails({ torrent, transmission }) {
       <h2>{torrent.name} <a href={torrent.magnetLink} style={{fontSize:"0.5em",textDecoration:"none"}}>🧲</a></h2>
       <canvas ref={canvasRef} />
       <dl>
+        <dt>Status</dt>
+        <dd>
+          { torrent.status === Transmission.STATUS_STOPPED && "STOPPED" }
+          { torrent.status === Transmission.STATUS_CHECK_WAIT && "CHECK_WAIT" }
+          { torrent.status === Transmission.STATUS_CHECK && "CHECK" }
+          { torrent.status === Transmission.STATUS_DOWNLOAD_WAIT && "DOWNLOAD_WAIT" }
+          { torrent.status === Transmission.STATUS_DOWNLOAD && "DOWNLOAD" }
+          { torrent.status === Transmission.STATUS_SEED_WAIT && "SEED_WAIT" }
+          { torrent.status === Transmission.STATUS_SEED && "SEED" }
+          {' '}
+          { torrent.status !== Transmission.STATUS_STOPPED && <button onClick={handleStop}>Stop</button> }
+          { torrent.status === Transmission.STATUS_STOPPED && <button onClick={handleStart}>Start</button> }
+        </dd>
         <dt>Size</dt>
         <dd title={`${torrent.sizeWhenDone} bytes`}>{formatBytes(torrent.sizeWhenDone)}</dd>
         {torrent.percentDone < 1 &&
