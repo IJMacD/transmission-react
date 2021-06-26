@@ -30,8 +30,8 @@ function App() {
   });
   const [ selectedTorrent, setSelectedTorrent ] = useState(-1);
   const [ torrentData, setTorrentData ] = useState(null);
-  const downloadAverage = useRef(0);
-  const uploadAverage = useRef(0);
+  const downloadAverage = useRef(NaN);
+  const uploadAverage = useRef(NaN);
   const [ downloadMax, setDownloadMax ] = useSavedState("TRANSMISSION_DOWNLOAD_MAX", 0);
   const [ uploadMax, setUploadMax ] = useSavedState("TRANSMISSION_UPLOAD_MAX", 0);
   const [ page, setPage ] = useState("torrents");
@@ -52,16 +52,18 @@ function App() {
   useEffect(() => {
     const activeTorrents = torrents.filter(isActive);
 
-    const totalDown = activeTorrents.reduce((total,torrent) => total + torrent.rateDownload, 0);
-    const totalUp = activeTorrents.reduce((total,torrent) => total + torrent.rateUpload, 0);
+    if (activeTorrents.length) {
+      const totalDown = activeTorrents.reduce((total,torrent) => total + torrent.rateDownload, 0);
+      const totalUp = activeTorrents.reduce((total,torrent) => total + torrent.rateUpload, 0);
 
-    downloadAverage.current = downloadAverage.current * 0.9 + totalDown * 0.1;
-    uploadAverage.current = uploadAverage.current * 0.9 + totalUp * 0.1;
+      downloadAverage.current = isNaN(downloadAverage.current) ? totalDown : downloadAverage.current * 0.9 + totalDown * 0.1;
+      uploadAverage.current = isNaN(uploadAverage.current) ? totalUp : uploadAverage.current * 0.9 + totalUp * 0.1;
 
-    setDownloadMax(downloadMax => Math.max(downloadMax, totalDown));
-    setUploadMax(uploadMax => Math.max(uploadMax, totalUp));
+      setDownloadMax(downloadMax => Math.max(downloadMax, totalDown));
+      setUploadMax(uploadMax => Math.max(uploadMax, totalUp));
 
-    pushData(totalDown, totalUp, downloadAverage.current, uploadAverage.current);
+      pushData(totalDown, totalUp, downloadAverage.current, uploadAverage.current);
+    }
   }, [torrents, pushData, setDownloadMax, setUploadMax]);
 
   useEffect(() => {

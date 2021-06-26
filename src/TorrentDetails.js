@@ -16,14 +16,16 @@ export function TorrentDetails({ torrent, transmission }) {
     colour: ["#CFC","#FCC","#8D8","#D88"],
     style: ["area","area","line","line"],
   });
-  const [ downloadAverage, setDownloadAverage ] = useState(torrent ? torrent.rateDownload : 0);
-  const [ uploadAverage, setUploadAverage ] = useState(torrent ? torrent.rateUpload : 0);
+  const [ downloadAverage, setDownloadAverage ] = useState(torrent ? torrent.rateDownload : NaN);
+  const [ uploadAverage, setUploadAverage ] = useState(torrent ? torrent.rateUpload : NaN);
 
   useEffect(() => {
     if (torrent) {
-        pushData(torrent.rateDownload, torrent.rateUpload, downloadAverage, uploadAverage);
-        setDownloadAverage(downloadAverage => downloadAverage * 0.9 + torrent.rateDownload * 0.1);
-        setUploadAverage(uploadAverage => uploadAverage * 0.9 + torrent.rateUpload * 0.1);
+        if(!isNaN(downloadAverage)) {
+          pushData(torrent.rateDownload, torrent.rateUpload, downloadAverage, uploadAverage);
+        }
+        setDownloadAverage(downloadAverage => isNaN(downloadAverage) ? torrent.rateDownload : downloadAverage * 0.9 + torrent.rateDownload * 0.1);
+        setUploadAverage(uploadAverage => isNaN(uploadAverage) ? torrent.rateUpload : uploadAverage * 0.9 + torrent.rateUpload * 0.1);
     }
   }, [torrent, pushData])
 
