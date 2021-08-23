@@ -2,7 +2,7 @@ import { countSeeds, formatBytesPerSecond } from './util';
 
 export function TorrentList({ torrents, onTorrentClick=null, onStartClick=null }) {
   return <ul>
-    {torrents.map(t => <li key={t.id} onClick={() => onTorrentClick(t.id)}><TorrentEntry torrent={t} onStartClick={onStartClick} /></li>)}
+    {torrents.map(t => <li key={t.id} className="torrent-item" onClick={() => onTorrentClick(t.id)}><TorrentEntry torrent={t} onStartClick={onStartClick} /></li>)}
   </ul>;
 }
 

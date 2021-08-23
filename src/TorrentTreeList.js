@@ -41,7 +41,7 @@ function TreeItem ({ item, onTorrentClick, onStartClick }) {
         }
 
         return (
-          <li key={key} onClick={() => onTorrentClick(value.id)}>
+          <li key={key} className="torrent-item" onClick={() => onTorrentClick(value.id)}>
             <TorrentEntry torrent={value} onStartClick={onStartClick} />
           </li>
         );

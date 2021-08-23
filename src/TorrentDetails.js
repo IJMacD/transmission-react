@@ -48,6 +48,13 @@ export function TorrentDetails({ torrent, transmission }) {
     transmission.startTorrent(torrent.id);
   }
 
+  function handleRename (path) {
+    const name = prompt("Enter new name:", path);
+    if (name) {
+      transmission.renameFile(torrent.id, path, name);
+    }
+  }
+
   const seedCount = countSeeds(torrent);
 
   return (
@@ -137,6 +144,14 @@ export function TorrentDetails({ torrent, transmission }) {
           </>}
         <dt>Pieces</dt>
         <dd>{torrent.pieceCount} × {formatBytes(torrent.pieceSize)}</dd>
+        <dt>Files</dt>
+        <dd>
+          <ul style={{padding: 0, margin: 0}}>
+            {
+              torrent.files.map(f => <li key={f.name}>{f.name} {((f.bytesCompleted/f.length)*100).toFixed()}% <button onClick={() => handleRename(f.name)}>Rename</button></li>)
+            }
+          </ul>
+        </dd>
       </dl>
       <PieceMap pieces={torrent.pieces} count={torrent.pieceCount} />
     </div>

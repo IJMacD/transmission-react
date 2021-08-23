@@ -306,16 +306,10 @@ export default class Transmission {
 
     /**
      * @param {number|string} ids
+     * @param {string} path
+     * @param {string} name
      */
-    startTorrent (ids) {
-        const move = true;
-        return this.rpc({ method: "torrent-start", arguments: { ids }});
-    }
-
-    /**
-     * @param {number|string} ids
-     */
-    stopTorrent (ids) {
-        return this.rpc({ method: "torrent-stop", arguments: { ids }});
+    renameFile (ids, path, name) {
+        return this.rpc({ method: "torrent-rename-path", arguments: { ids, path, name }});
     }
 }

@@ -34,7 +34,7 @@ tr:hover td {
   color: #999;
 }
 
-li {
+.torrent-item {
   cursor: pointer;
 }
 
