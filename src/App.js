@@ -68,14 +68,10 @@ function App() {
 
   useEffect(() => {
     if (selectedTorrent >= 0) {
-      const run = () => {
-        const tm = tmRef.current;
-        tm.getTorrent(selectedTorrent).then(setTorrentData);
-      };
-      const id = setInterval(run, 10 * 1000);
-      run();
+      const tm = tmRef.current;
+      tm.addTorrentListener(selectedTorrent, setTorrentData);
 
-      return () => clearInterval(id);
+      return () => tm.removeTorrentListener(selectedTorrent, setTorrentData);
     } else {
       setTorrentData(null);
     }

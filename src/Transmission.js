@@ -11,6 +11,61 @@ export default class Transmission {
 
     constructor (API_ROOT) {
         this.API_ROOT = API_ROOT;
+
+        this._torrentListeners = [];
+    }
+
+    /**
+     * @param {number} id
+     * @param {(value: any) => any} listener
+     * @param {number} [interval]
+     */
+    addTorrentListener (id, listener, interval = 10 * 1000) {
+        const info = {
+            id,
+            listener,
+            active: true,
+            notify: null,
+            intervalID: null,
+        };
+
+        info.notify = () => this.getTorrent(id).then(data => info.active && listener(data));
+        info.intervalID = setInterval(info.notify, interval);
+
+        this._torrentListeners.push(info);
+
+        info.notify();
+    }
+
+    /**
+     * @param {number} id
+     * @param {(value: any) => any} listener
+     */
+    removeTorrentListener (id, listener) {
+        this._torrentListeners.filter(i => i.id === id && i.listener === listener).forEach(i => { clearInterval(i.intervalID); i.active = false; });
+        this._torrentListeners = this._torrentListeners.filter(i => i.id !== id && i.listener !== listener);
+    }
+
+    /**
+     * @param {string | number | number[]} ids
+     */
+    notifyTorrents (ids) {
+        if (typeof ids === "string") {
+            // TODO
+            return;
+        }
+
+        if (typeof ids === "number") {
+            ids = [ids];
+        }
+
+        for (const id of ids) {
+            this._torrentListeners.forEach(i => {
+                if (i.id === id) {
+                    i.notify();
+                }
+            });
+        }
     }
 
     async rpc (data, retry = 2) {
@@ -278,14 +333,14 @@ export default class Transmission {
      * @param {number|number[]} ids
      */
     startTorrent (ids) {
-        return this.rpc({ method: "torrent-start", arguments: { ids } });
+        return this.rpc({ method: "torrent-start", arguments: { ids } }).then(() => this.notifyTorrents(ids));
     }
 
     /**
      * @param {number|number[]} ids
      */
     stopTorrent (ids) {
-        return this.rpc({ method: "torrent-stop", arguments: { ids } });
+        return this.rpc({ method: "torrent-stop", arguments: { ids } }).then(() => this.notifyTorrents(ids));
     }
 
     /**
@@ -301,7 +356,7 @@ export default class Transmission {
      */
     moveTorrent (ids, location) {
         const move = true;
-        return this.rpc({ method: "torrent-set-location", arguments: { ids, location, move }});
+        return this.rpc({ method: "torrent-set-location", arguments: { ids, location, move }}).then(() => this.notifyTorrents(ids));
     }
 
     /**
@@ -310,6 +365,6 @@ export default class Transmission {
      * @param {string} name
      */
     renameFile (ids, path, name) {
-        return this.rpc({ method: "torrent-rename-path", arguments: { ids, path, name }});
+        return this.rpc({ method: "torrent-rename-path", arguments: { ids, path, name }}).then(() => this.notifyTorrents(ids));
     }
 }
