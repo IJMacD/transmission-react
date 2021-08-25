@@ -6,7 +6,7 @@ export function TorrentTable({ torrents, onTorrentClick = null, onStopClick = nu
       <thead>
         <tr>
           <th>Name</th>
-          <th>Download Speed</th>
+          { downloadMode && <th>Download Speed</th> }
           <th>{ downloadMode ? "ETA" : "Upload Speed" }</th>
           <th>Seeds</th>
           <th>Peers</th>
@@ -20,7 +20,7 @@ export function TorrentTable({ torrents, onTorrentClick = null, onStopClick = nu
               {t.name}{' '}
               {t.percentDone < 1 && <span className="hint">{(t.percentDone * 100).toFixed(1)}%</span>}
             </td>
-            <td>{t.rateDownload > 0 && formatBytesPerSecond(t.rateDownload)}</td>
+            { downloadMode && <td>{t.rateDownload > 0 && formatBytesPerSecond(t.rateDownload)}</td> }
             { downloadMode ?
               <td>{t.percentDone < 1 && t.rateDownload > 0 && <span>{formatDuration(t.desiredAvailable / t.rateDownload)}</span>}</td>
               :

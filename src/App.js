@@ -89,6 +89,8 @@ function App() {
   const inactiveUnfinishedTorrents = torrents.filter(t => !isActive(t) && t.percentDone < 1);
   const inactiveFinishedTorrents = torrents.filter(t => !isActive(t) && t.percentDone === 1);
   const downloadingTorrents = torrents.filter(t => t.rateDownload > 0);
+  const uploadingTorrents = torrents.filter(t => isActive(t) && t.rateDownload === 0);
+  const recentlyFinishedTorrents = torrents.filter(t => t.percentDone === 1 && isRecentlyFinished(t));
 
   const totalDown = activeTorrents.reduce((total,torrent) => total + torrent.rateDownload, 0);
   const totalUp = activeTorrents.reduce((total,torrent) => total + torrent.rateUpload, 0);
@@ -124,8 +126,10 @@ function App() {
                   <TorrentTable torrents={sortBy(downloadingTorrents, "percentDone", true)} onTorrentClick={setSelectedTorrent} downloadMode={true} />
                 </>
               }
-              <h2>Active ({activeTorrents.length})</h2>
-              <TorrentTable torrents={sortBy(activeTorrents, "uploadedEver", true)} onTorrentClick={setSelectedTorrent} onStopClick={id => tmRef.current.stopTorrent(id)} />
+              <h2>Uploading ({uploadingTorrents.length})</h2>
+              <TorrentTable torrents={sortBy(uploadingTorrents, "uploadedEver", true)} onTorrentClick={setSelectedTorrent} onStopClick={id => tmRef.current.stopTorrent(id)} />
+              <h2>Recently Finished ({recentlyFinishedTorrents.length})</h2>
+              <TorrentList torrents={sortBy(recentlyFinishedTorrents, "doneDate", true)} onTorrentClick={setSelectedTorrent} />
               <h2>Inactive and Unfinished ({inactiveUnfinishedTorrents.length})</h2>
               <TorrentList torrents={sortBy(inactiveUnfinishedTorrents, "percentDone", true)} onTorrentClick={setSelectedTorrent} />
               <h2>Inactive and Finished ({inactiveFinishedTorrents.length})</h2>
@@ -150,4 +154,6 @@ function isActive (torrent) {
   return torrent.rateDownload > 0 || torrent.rateUpload > 0;
 }
 
-
+function isRecentlyFinished (torrent) {
+  return Date.now() - (torrent.doneDate * 1000) < (7 * 24 * 60 * 60 * 1000);
+}

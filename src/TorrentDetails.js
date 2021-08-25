@@ -2,6 +2,7 @@ import { formatBytesPerSecond, formatBytes, formatDuration, countSeeds } from '.
 import { useGraph } from './useGraph';
 import { useEffect, useState } from 'react';
 import Transmission from './Transmission';
+import { FileTreeList } from './FileTreeList';
 
 /**
  *
@@ -49,7 +50,9 @@ export function TorrentDetails({ torrent, transmission }) {
   }
 
   function handleRename (path) {
-    const name = prompt("Enter new name:", path);
+    const segs = path.replace(/\/$/, "").split("/");
+    const oldName = segs[segs.length-1];
+    const name = prompt("Enter new name:", oldName);
     if (name) {
       transmission.renameFile(torrent.id, path, name);
     }
@@ -146,11 +149,7 @@ export function TorrentDetails({ torrent, transmission }) {
         <dd>{torrent.pieceCount} × {formatBytes(torrent.pieceSize)}</dd>
         <dt>Files</dt>
         <dd>
-          <ul style={{padding: 0, margin: 0}}>
-            {
-              torrent.files.map(f => <li key={f.name}>{f.name} {((f.bytesCompleted/f.length)*100).toFixed()}% <button onClick={() => handleRename(f.name)}>Rename</button></li>)
-            }
-          </ul>
+          <FileTreeList files={torrent.files} onRenameClick={handleRename} />
         </dd>
       </dl>
       <PieceMap pieces={torrent.pieces} count={torrent.pieceCount} />

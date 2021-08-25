@@ -38,6 +38,11 @@ tr:hover td {
   cursor: pointer;
 }
 
+dd > .TreeItem {
+  padding: 0;
+  margin: 0;
+}
+
 .PieceMap-Piece {
   width: 10px;
   height: 15px;
