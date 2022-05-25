@@ -1,30 +1,28 @@
 import { formatBytesPerSecond, formatBytes, formatDuration, countSeeds } from './util';
-import { useGraph } from './useGraph';
+import { Graph } from './Graph';
 import { useEffect, useState } from 'react';
 import Transmission from './Transmission';
 import { FileTreeList } from './FileTreeList';
+import { useDataLog } from './useDataLog';
+import { ProgressGraph } from './ProgressGraph';
 
 /**
  *
  * @param {object} props
- * @param {object} props.torrent
+ * @param {Torrent} props.torrent
  * @param {import('./Transmission').default} props.transmission
  * @returns
  */
 export function TorrentDetails({ torrent, transmission }) {
-  const [ canvasRef, pushData ] = useGraph({
-    horizontalGridlines: 500 * 1024,
-    colour: ["#CFC","#FCC","#8D8","#D88"],
-    style: ["area","area","line","line"],
-  });
+  const [ data, pushData ] = useDataLog();
+
   const [ downloadAverage, setDownloadAverage ] = useState(torrent ? torrent.rateDownload : NaN);
   const [ uploadAverage, setUploadAverage ] = useState(torrent ? torrent.rateUpload : NaN);
 
   useEffect(() => {
     if (torrent) {
-        if(!isNaN(downloadAverage)) {
-          pushData(torrent.rateDownload, torrent.rateUpload, downloadAverage, uploadAverage);
-        }
+        pushData(Date.now(), torrent.rateDownload, torrent.rateUpload, torrent.percentDone);
+
         setDownloadAverage(downloadAverage => isNaN(downloadAverage) ? torrent.rateDownload : downloadAverage * 0.9 + torrent.rateDownload * 0.1);
         setUploadAverage(uploadAverage => isNaN(uploadAverage) ? torrent.rateUpload : uploadAverage * 0.9 + torrent.rateUpload * 0.1);
     }
@@ -60,10 +58,23 @@ export function TorrentDetails({ torrent, transmission }) {
 
   const seedCount = countSeeds(torrent);
 
+  const graphData = [
+    ...data.slice(0, 3),
+    movingAverage(data[1] || []),
+    movingAverage(data[2] || []),
+  ];
+
+  const graphOptions = {
+    horizontalGridlines: 500 * 1024,
+    colour: ["#CFC","#FCC","#8D8","#D88"],
+    style: ["area","area","line","line"],
+  };
+
   return (
     <div>
       <h2>{torrent.name} <a href={torrent.magnetLink} style={{fontSize:"0.5em",textDecoration:"none"}}>🧲</a></h2>
-      <canvas ref={canvasRef} />
+      <Graph data={graphData} options={graphOptions} />
+      <ProgressGraph data={[ data[0], data[3] ]} />
       <dl>
         <dt>Status</dt>
         <dd>
@@ -103,11 +114,11 @@ export function TorrentDetails({ torrent, transmission }) {
             <dd>{new Date(Date.now() + (torrent.desiredAvailable / downloadAverage) * 1000).toISOString()} <span className="hint">in {formatDuration(torrent.desiredAvailable / downloadAverage)}</span></dd>
           </>
         }
-        {torrent.rateDownload > 0 &&
-          <>
+        {/* {torrent.rateDownload > 0 &&
+          <> */}
             <dt>Current Speed</dt>
             <dd>{formatBytesPerSecond(torrent.rateDownload)}</dd>
-          </>}
+          {/* </>} */}
         <dt>Average Speed</dt>
         <dd>{formatBytesPerSecond(torrent.downloadedEver / torrent.secondsDownloading)}</dd>
         {
@@ -187,4 +198,15 @@ export function PeerIcons ({ peers }) {
         }
       </div>
     )
+}
+
+/**
+ *
+ * @param {number[]} values
+ */
+function movingAverage (values) {
+  return values.map((v, i, vs) => {
+    if (i < 4) return v;
+    return (vs[i - 4] + vs[i - 3] + vs[i - 2] + vs[i - 1] + vs[i]) / 5;
+  });
 }

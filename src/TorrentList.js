@@ -15,7 +15,7 @@ export function TorrentEntry({ torrent, onStartClick }) {
       {rateDownload > 0 && <span>⬇️ {formatBytesPerSecond(rateDownload)}</span>}
       {rateUpload > 0 && <span>⬆️ {formatBytesPerSecond(rateUpload)}</span>}
       {percentDone < 1 && <span className="hint">{(percentDone * 100).toFixed(1)}%</span>}
-      {seedCount < 5 && isFinished ? <span title={`Seeds: ${seedCount}`} onClick={e => { e.stopPropagation(); onStartClick(id); }}>⚡</span> : null}
+      {seedCount < 5 && isFinished && onStartClick ? <span title={`Seeds: ${seedCount}`} onClick={e => { e.stopPropagation(); onStartClick(id); }}>⚡</span> : null}
     </div>
   );
 }

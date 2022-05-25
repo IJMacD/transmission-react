@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import './App.css';
 import { formatBytesPerSecond, sortBy } from './util';
 import Transmission from "./Transmission";
-import { useGraph } from './useGraph';
+import { Graph } from './Graph';
 import { TorrentTable } from './TorrentTable';
 import { TorrentDetails } from './TorrentDetails';
 import { TorrentList } from './TorrentList';
@@ -10,6 +10,7 @@ import { TorrentTreeList } from './TorrentTreeList';
 import { PeerStats } from './PeerStats';
 import { useSavedState } from './useSavedState';
 import SearchPage from './SearchPage';
+import { useDataLog } from './useDataLog';
 
 /**
  * @typedef Torrent
@@ -23,11 +24,7 @@ function App() {
   /** @type {[ Torrent[], import('react').Dispatch<import('react').SetStateAction<Torrent[]>> ]} */
   const [torrents, setTorrents] = useState([]);
   const tmRef = useRef(new Transmission(process.env.REACT_APP_API_ROOT));
-  const [ canvasRef, pushData ] = useGraph({
-    horizontalGridlines: 500 * 1024,
-    colour: ["#CFC","#FCC","#5F5","#F55"],
-    style: ["area","area","line","line"],
-  });
+  const [ data, pushData ] = useDataLog();
   const [ selectedTorrent, setSelectedTorrent ] = useState(-1);
   const [ torrentData, setTorrentData ] = useState(null);
   const downloadAverage = useRef(NaN);
@@ -62,7 +59,7 @@ function App() {
       setDownloadMax(downloadMax => Math.max(downloadMax, totalDown));
       setUploadMax(uploadMax => Math.max(uploadMax, totalUp));
 
-      pushData(totalDown, totalUp, downloadAverage.current, uploadAverage.current);
+      pushData(Date.now(), totalDown, totalUp, downloadAverage.current, uploadAverage.current);
     }
   }, [torrents, pushData, setDownloadMax, setUploadMax]);
 
@@ -85,6 +82,12 @@ function App() {
     }
   }
 
+  const graphOptions = {
+    horizontalGridlines: 500 * 1024,
+    colour: ["#CFC","#FCC","#5F5","#F55"],
+    style: ["area","area","line","line"],
+  };
+
   const activeTorrents = torrents.filter(isActive);
   const inactiveUnfinishedTorrents = torrents.filter(t => !isActive(t) && t.percentDone < 1);
   const inactiveFinishedTorrents = torrents.filter(t => !isActive(t) && t.percentDone === 1);
@@ -102,7 +105,7 @@ function App() {
       <button onClick={() => setPage("peers")} disabled={page === "peers"}>Peers</button>
       <button onClick={() => setPage("search")} disabled={page === "search"}>Search</button>
       <button onClick={handleAddLink}>Add Magnet</button>
-      { selectedTorrent < 0 && <canvas ref={canvasRef} /> }
+      { selectedTorrent < 0 && <Graph data={data} options={graphOptions} /> }
       {
         page === "peers" &&
         <div>
