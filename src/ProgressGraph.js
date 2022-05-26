@@ -52,6 +52,8 @@ export function ProgressGraph ({ data, startTime = NaN, color = "#4F4" }) {
         const y_1 = data[1][i_1];
         const y_2 = data[1][i_2];
 
+        if (y_2 === 0) return null;
+
         // y = mx + c
 
         // y1 = mx1 + c
@@ -89,7 +91,7 @@ export function ProgressGraph ({ data, startTime = NaN, color = "#4F4" }) {
         const x_start = isNaN(startTime) ? Math.min(x_0, (predicted_y_start - c) / m) : startTime;
         // End should be predicted end if m > 0, or
         // calculated to make [byte percent] === [time percent]
-        const x_end = !isNaN(m) && m > 0 ? (y_end - c) / m : ((x_2 - x_start) / y_2 + x_start);
+        const x_end = m > 0 ? (y_end - c) / m : ((x_2 - x_start) / y_2 + x_start);
 
         const x_range = x_end - x_start;
         const x_scale = graphWidth / x_range;
