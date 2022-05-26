@@ -1,14 +1,14 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useDebounce } from './useDebounce';
 
 export default React.memo(PieceMap);
 
 function PieceMap ({ pieces, count }) {
-  const previousPieces = useRef("");
+  const [ previousPieces, setPreviousPieces ] = useState("");
+  const debouncedPreviousPieces = useDebounce(previousPieces, 2000);
 
   useEffect(() => {
-    if (pieces !== previousPieces.current) {
-      previousPieces.current = pieces;
-    }
+    setPreviousPieces(pieces);
   }, [pieces]);
 
   return (
@@ -16,7 +16,7 @@ function PieceMap ({ pieces, count }) {
       {[...Array(count)].map((_, i) => <div
         key={i}
         title={`Piece ${i}`}
-        className={`PieceMap-Piece ${isPieceDone(pieces, i) ? `PieceMap-Piece--done` : ""} ${isPieceNew(pieces, previousPieces.current, i) ? `PieceMap-Piece--new` : ""}`} />
+        className={`PieceMap-Piece ${isPieceDone(pieces, i) ? `PieceMap-Piece--done` : ""} ${isPieceNew(pieces, debouncedPreviousPieces, i) ? `PieceMap-Piece--new` : ""}`} />
       )}
     </div>
   );
