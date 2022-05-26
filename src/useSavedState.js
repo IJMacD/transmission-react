@@ -1,5 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
 
+/**
+ * @template T
+ * @param {string} key
+ * @param {T} initialValue
+ * @returns {[T, (newState: T|((oldState: T) => T)) => void]}
+ */
 export function useSavedState (key, initialValue) {
     const [ state, setState ] = useState(() => {
         const saved = localStorage.getItem(key);

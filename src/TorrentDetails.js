@@ -11,9 +11,10 @@ import { ProgressGraph } from './ProgressGraph';
  * @param {object} props
  * @param {Torrent} props.torrent
  * @param {import('./Transmission').default} props.transmission
+ * @param {FileSystemMapping[]} props.pathMappings
  * @returns
  */
-export function TorrentDetails({ torrent, transmission }) {
+export function TorrentDetails({ torrent, transmission, pathMappings }) {
   const [ data, pushData ] = useDataLog();
 
   const [ downloadAverage, setDownloadAverage ] = useState(torrent ? torrent.rateDownload : NaN);
@@ -70,6 +71,9 @@ export function TorrentDetails({ torrent, transmission }) {
     colour: ["#CFC","#FCC","#8D8","#D88"],
     style: ["area","area","line","line"],
   };
+
+  const foundMapping = pathMappings.find(m => torrent.downloadDir.startsWith(m.base));
+  const pathMapping = foundMapping ? foundMapping.path + torrent.downloadDir.substring(foundMapping.base.length) : null;
 
   return (
     <div>
@@ -171,7 +175,7 @@ export function TorrentDetails({ torrent, transmission }) {
           <>
             <dt>Files</dt>
             <dd>
-              <FileTreeList files={torrent.files} onRenameClick={handleRename} />
+              <FileTreeList files={torrent.files} onRenameClick={handleRename} pathMapping={pathMapping} />
             </dd>
           </>
         }

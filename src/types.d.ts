@@ -72,3 +72,14 @@ interface Torrent {
     webseeds: any[]; // "[]",
     webseedsSendingToUs: number; // 0
 }
+
+interface TorrentFile {
+    bytesCompleted: number; // 59,
+    length: number; // 59,
+    name: string; // "Final Destination 3 (2006)/Other/AhaShare.com.txt"
+}
+
+interface FileSystemMapping {
+    base: string;
+    path: string;
+}

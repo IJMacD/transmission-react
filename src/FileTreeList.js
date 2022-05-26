@@ -1,5 +1,13 @@
 
-export function FileTreeList({ files, onRenameClick }) {
+/**
+ *
+ * @param {object} props
+ * @param {object[]} props.files
+ * @param {(newName: string) => void} props.onRenameClick
+ * @param {string} [props.pathMapping]
+ * @returns
+ */
+export function FileTreeList({ files, onRenameClick, pathMapping = null }) {
   const map = new Map();
 
   for (const t of files) {
@@ -29,11 +37,19 @@ export function FileTreeList({ files, onRenameClick }) {
   }
 
   return (
-    <TreeItem item={map} onRenameClick={onRenameClick} />
+    <TreeItem item={map} onRenameClick={onRenameClick} pathMapping={pathMapping} />
   );
 }
 
-function TreeItem ({ item, onRenameClick }) {
+/**
+ *
+ * @param {object} props
+ * @param {Map<string, Map|TorrentFile>} props.item
+ * @param {(newName: string) => void} props.onRenameClick
+ * @param {string} [props.pathMapping]
+ * @returns
+ */
+function TreeItem ({ item, onRenameClick, pathMapping = null }) {
   return (
     <ul className="TreeItem">
       {[...item.entries()].map(([key, value]) => {
@@ -41,14 +57,20 @@ function TreeItem ({ item, onRenameClick }) {
           return (
             <li key={key}>
               /{key} <button onClick={() => onRenameClick(key)}>Rename</button>
-              <TreeItem item={value} onRenameClick={onRenameClick} />
+              <TreeItem item={value} onRenameClick={onRenameClick} pathMapping={pathMapping} />
             </li>
           );
         }
 
         return (
           <li key={key} className="file-item">
-            {key} {((value.bytesCompleted/value.length)*100).toFixed()}% <button onClick={() => onRenameClick(value.name)}>Rename</button>
+            {
+              pathMapping && value.bytesCompleted === value.length ?
+              <a href={`${pathMapping}/${value.name}`}>{key}</a> :
+              key
+            } {' '}
+            {((value.bytesCompleted/value.length)*100).toFixed()}% {' '}
+            <button onClick={() => onRenameClick(value.name)}>Rename</button>
           </li>
         );
       })}
