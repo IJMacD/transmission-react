@@ -21,10 +21,11 @@ export function TorrentDetails({ torrent, transmission }) {
 
   useEffect(() => {
     if (torrent) {
-        pushData(Date.now(), torrent.rateDownload, torrent.rateUpload, torrent.percentDone);
+      const uploadPercent = torrent.uploadRatio / torrent.seedRatioLimit;
+      pushData(Date.now(), torrent.rateDownload, torrent.rateUpload, torrent.percentDone, uploadPercent);
 
-        setDownloadAverage(downloadAverage => isNaN(downloadAverage) ? torrent.rateDownload : downloadAverage * 0.9 + torrent.rateDownload * 0.1);
-        setUploadAverage(uploadAverage => isNaN(uploadAverage) ? torrent.rateUpload : uploadAverage * 0.9 + torrent.rateUpload * 0.1);
+      setDownloadAverage(downloadAverage => isNaN(downloadAverage) ? torrent.rateDownload : downloadAverage * 0.9 + torrent.rateDownload * 0.1);
+      setUploadAverage(uploadAverage => isNaN(uploadAverage) ? torrent.rateUpload : uploadAverage * 0.9 + torrent.rateUpload * 0.1);
     }
   }, [torrent, pushData])
 
@@ -73,8 +74,16 @@ export function TorrentDetails({ torrent, transmission }) {
   return (
     <div>
       <h2>{torrent.name} <a href={torrent.magnetLink} style={{fontSize:"0.5em",textDecoration:"none"}}>🧲</a></h2>
+      <p>⬇️ {formatBytesPerSecond(torrent.rateDownload)} (Avg: {formatBytesPerSecond(downloadAverage)}) ⬆️ {formatBytesPerSecond(torrent.rateUpload)} (Avg: {formatBytesPerSecond(uploadAverage)})</p>
       <Graph data={graphData} options={graphOptions} />
-      <ProgressGraph data={[ data[0], data[3] ]} />
+      {
+        torrent.status === Transmission.STATUS_DOWNLOAD &&
+          <ProgressGraph data={[ data[0], data[3] ]} startTime={torrent.addedDate * 1000} />
+      }
+      {
+        torrent.status === Transmission.STATUS_SEED &&
+          <ProgressGraph data={[ data[0], data[4] ]} startTime={torrent.addedDate * 1000} color="#F44" />
+      }
       <dl>
         <dt>Status</dt>
         <dd>
@@ -158,12 +167,16 @@ export function TorrentDetails({ torrent, transmission }) {
           </>}
         <dt>Pieces</dt>
         <dd>{torrent.pieceCount} × {formatBytes(torrent.pieceSize)}</dd>
-        <dt>Files</dt>
-        <dd>
-          <FileTreeList files={torrent.files} onRenameClick={handleRename} />
-        </dd>
+        { torrent.files &&
+          <>
+            <dt>Files</dt>
+            <dd>
+              <FileTreeList files={torrent.files} onRenameClick={handleRename} />
+            </dd>
+          </>
+        }
       </dl>
-      <PieceMap pieces={torrent.pieces} count={torrent.pieceCount} />
+      { torrent.pieces && <PieceMap pieces={torrent.pieces} count={torrent.pieceCount} /> }
     </div>
   );
 }
