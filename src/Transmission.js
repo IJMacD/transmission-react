@@ -1,3 +1,8 @@
+
+/**
+ * @typedef {{ids: number[];listener?: (value: any) => any;active: boolean;notify: () => void;intervalID: number;}} NotifyInfo
+ */
+
 export default class Transmission {
     sessionId = null;
 
@@ -12,6 +17,7 @@ export default class Transmission {
     constructor (API_ROOT) {
         this.API_ROOT = API_ROOT;
 
+        /** @type {NotifyInfo[]} */
         this._torrentListeners = [];
     }
 
@@ -22,14 +28,36 @@ export default class Transmission {
      */
     addTorrentListener (id, listener, interval = 10 * 1000) {
         const info = {
-            id,
+            ids: [id],
             listener,
             active: true,
             notify: null,
             intervalID: null,
         };
 
-        info.notify = () => this.getTorrent(id).then(data => info.active && listener(data));
+        info.notify = () => this.getTorrentDetails([id]).then(data => info.active && listener(data), console.error);
+        info.intervalID = setInterval(info.notify, interval);
+
+        this._torrentListeners.push(info);
+
+        info.notify();
+    }
+
+    /**
+     * @param {number[]} ids
+     * @param {(value: any) => any} listener
+     * @param {number} [interval]
+     */
+    addMultipleTorrentListener (ids, listener, interval = 10 * 1000) {
+        const info = {
+            ids,
+            listener,
+            active: true,
+            notify: null,
+            intervalID: null,
+        };
+
+        info.notify = () => this.getTorrentDetails(ids).then(data => info.active && listener(data), console.error);
         info.intervalID = setInterval(info.notify, interval);
 
         this._torrentListeners.push(info);
@@ -42,8 +70,17 @@ export default class Transmission {
      * @param {(value: any) => any} listener
      */
     removeTorrentListener (id, listener) {
-        this._torrentListeners.filter(i => i.id === id && i.listener === listener).forEach(i => { clearInterval(i.intervalID); i.active = false; });
-        this._torrentListeners = this._torrentListeners.filter(i => i.id !== id && i.listener !== listener);
+        this._torrentListeners.filter(i => i.ids.includes(id) && i.listener === listener).forEach(i => { clearInterval(i.intervalID); i.active = false; });
+        this._torrentListeners = this._torrentListeners.filter(i => !i.ids.includes(id) || i.listener !== listener);
+    }
+
+    /**
+     * @param {number[]} ids
+     * @param {(value: any) => any} listener
+     */
+    removeMultipleTorrentListener (ids, listener) {
+        this._torrentListeners.filter(i => i.ids.every(nid => ids.includes(nid)) && i.listener === listener).forEach(i => { clearInterval(i.intervalID); i.active = false; });
+        this._torrentListeners = this._torrentListeners.filter(i => !i.ids.every(nid => ids.includes(nid)) || i.listener !== listener);
     }
 
     /**
@@ -61,7 +98,7 @@ export default class Transmission {
 
         for (const id of ids) {
             this._torrentListeners.forEach(i => {
-                if (i.id === id) {
+                if (i.ids.includes(id)) {
                     i.notify();
                 }
             });
@@ -184,11 +221,14 @@ export default class Transmission {
         return res.arguments.torrents;
     }
 
-    async getTorrent (id) {
+    /**
+     * @param {number[]} ids
+     */
+    async getTorrentDetails (ids) {
         const res = await this.rpc({
             method: "torrent-get",
             arguments: {
-                ids: [id],
+                ids,
                 fields: [
                     "activityDate",
                     "addedDate",
@@ -266,7 +306,7 @@ export default class Transmission {
             }
         });
 
-        return res.arguments.torrents[0];
+        return res.arguments.torrents;
     }
 
     async getSession () {

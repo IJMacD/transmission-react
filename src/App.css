@@ -102,3 +102,10 @@ dd > .TreeItem {
   border: 1px solid #00000080;
   border-radius: 5px;
 }
+
+.TorrentTabButton {
+  max-width: 150px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}

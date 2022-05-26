@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, Fragment } from 'react';
 import './App.css';
 import { formatBytesPerSecond, sortBy } from './util';
 import Transmission from "./Transmission";
@@ -12,21 +12,14 @@ import { useSavedState } from './useSavedState';
 import SearchPage from './SearchPage';
 import { useDataLog } from './useDataLog';
 
-/**
- * @typedef Torrent
- * @property {number} id
- * @property {number} rateDownload
- * @property {number} rateUpload
- * @property {number} percentDone
- */
-
 function App() {
   /** @type {[ Torrent[], import('react').Dispatch<import('react').SetStateAction<Torrent[]>> ]} */
   const [torrents, setTorrents] = useState([]);
   const tmRef = useRef(new Transmission(process.env.REACT_APP_API_ROOT));
   const [ data, pushData ] = useDataLog();
   const [ selectedTorrent, setSelectedTorrent ] = useState(-1);
-  const [ torrentData, setTorrentData ] = useState(null);
+  const [ openTorrentTabs, setOpenTorrentTabs ] = useState(/** @type {number[]} */([]));
+  const [ torrentData, setTorrentData ] = useState(/** @type {Torrent[]} */([]));
   const downloadAverage = useRef(NaN);
   const uploadAverage = useRef(NaN);
   const [ downloadMax, setDownloadMax ] = useSavedState("TRANSMISSION_DOWNLOAD_MAX", 0);
@@ -49,30 +42,44 @@ function App() {
   useEffect(() => {
     const activeTorrents = torrents.filter(isActive);
 
-    if (activeTorrents.length) {
-      const totalDown = activeTorrents.reduce((total,torrent) => total + torrent.rateDownload, 0);
-      const totalUp = activeTorrents.reduce((total,torrent) => total + torrent.rateUpload, 0);
+    const totalDown = activeTorrents.reduce((total,torrent) => total + torrent.rateDownload, 0);
+    const totalUp = activeTorrents.reduce((total,torrent) => total + torrent.rateUpload, 0);
 
-      downloadAverage.current = isNaN(downloadAverage.current) ? totalDown : downloadAverage.current * 0.9 + totalDown * 0.1;
-      uploadAverage.current = isNaN(uploadAverage.current) ? totalUp : uploadAverage.current * 0.9 + totalUp * 0.1;
+    downloadAverage.current = isNaN(downloadAverage.current) ? totalDown : downloadAverage.current * 0.9 + totalDown * 0.1;
+    uploadAverage.current = isNaN(uploadAverage.current) ? totalUp : uploadAverage.current * 0.9 + totalUp * 0.1;
 
-      setDownloadMax(downloadMax => Math.max(downloadMax, totalDown));
-      setUploadMax(uploadMax => Math.max(uploadMax, totalUp));
+    setDownloadMax(downloadMax => Math.max(downloadMax, totalDown));
+    setUploadMax(uploadMax => Math.max(uploadMax, totalUp));
 
-      pushData(Date.now(), totalDown, totalUp, downloadAverage.current, uploadAverage.current);
-    }
+    pushData(Date.now(), totalDown, totalUp, downloadAverage.current, uploadAverage.current);
+
   }, [torrents, pushData, setDownloadMax, setUploadMax]);
 
   useEffect(() => {
-    if (selectedTorrent >= 0) {
+    if (openTorrentTabs.length > 0) {
       const tm = tmRef.current;
-      tm.addTorrentListener(selectedTorrent, setTorrentData);
+      tm.addMultipleTorrentListener(openTorrentTabs, setTorrentData);
 
-      return () => tm.removeTorrentListener(selectedTorrent, setTorrentData);
+      return () => tm.removeMultipleTorrentListener(openTorrentTabs, setTorrentData);
     } else {
-      setTorrentData(null);
+      // setTorrentData(null);
     }
-  }, [selectedTorrent]);
+  }, [openTorrentTabs]);
+
+  function selectTorrent (id) {
+    setSelectedTorrent(id);
+    setOpenTorrentTabs(openTorrentTabs => {
+      if (!openTorrentTabs.includes(id)) {
+        return [ ...openTorrentTabs, id ];
+      }
+      return openTorrentTabs;
+    });
+  }
+
+  function closeTorrent (id) {
+    setSelectedTorrent(selectedID => selectedID === id ? -1 : selectedID);
+    setOpenTorrentTabs(openTorrentTabs => openTorrentTabs.filter(t => t !== id));
+  }
 
   function handleAddLink () {
     const link = prompt("Enter magnet link:", "magnet://");
@@ -80,6 +87,13 @@ function App() {
     if (link) {
       tmRef.current.addMagnet(link);
     }
+  }
+
+  function getTorrent (id, details = false) {
+    if (details) {
+      return torrentData.find(t => t.id === id);
+    }
+    return torrents.find(t => t.id === id);
   }
 
   const graphOptions = {
@@ -101,7 +115,25 @@ function App() {
   return (
     <div className="App">
       <p>⬇️ {formatBytesPerSecond(totalDown)} (Avg: {formatBytesPerSecond(downloadAverage.current)}, Max: {formatBytesPerSecond(downloadMax)}) ⬆️ {formatBytesPerSecond(totalUp)} (Avg: {formatBytesPerSecond(uploadAverage.current)}, Max: {formatBytesPerSecond(uploadMax)})</p>
-      <button onClick={() => setPage("torrents")} disabled={page === "torrents"}>Torrents</button>
+      <button onClick={() => { setPage("torrents"); setSelectedTorrent(-1); }} disabled={page === "torrents" && selectedTorrent === -1}>Torrents</button>
+      <>
+      {
+        openTorrentTabs.map(id => {
+          const name = getTorrent(id)?.name || id;
+          const active = page === "torrents" && selectedTorrent === id;
+          return (
+            <button
+              key={id}
+              onClick={() => { setPage("torrents"); setSelectedTorrent(id); }}
+              disabled={active}
+              className="TorrentTabButton"
+            >
+              {name}
+            </button>
+          );
+        })
+      }
+      </>
       <button onClick={() => setPage("peers")} disabled={page === "peers"}>Peers</button>
       <button onClick={() => setPage("search")} disabled={page === "search"}>Search</button>
       <button onClick={handleAddLink}>Add Magnet</button>
@@ -113,32 +145,33 @@ function App() {
           <PeerStats torrents={torrents} />
         </div>
       }
-      { page === "torrents" &&
+      <>
+      {
+        openTorrentTabs.map(id => {
+          return <div key={id} style={{ display: page === "torrents" && selectedTorrent === id ? "block" : "none" }}>
+            <button onClick={() => closeTorrent(id)}>Close</button>
+            <TorrentDetails torrent={getTorrent(id, true)} transmission={tmRef.current} />
+          </div>
+        })
+      }
+      </>
+      { page === "torrents" && selectedTorrent === -1 &&
         <div>
           <h1>{torrents.length} torrents</h1>
-          { selectedTorrent >= 0 ?
+          { downloadingTorrents.length > 0 &&
             <>
-              <button onClick={() => setSelectedTorrent(-1)}>Back</button>
-              <TorrentDetails torrent={torrentData} transmission={tmRef.current} />
-            </>
-            :
-            <>
-              { downloadingTorrents.length > 0 &&
-                <>
-                  <h2>Downloading ({downloadingTorrents.length})</h2>
-                  <TorrentTable torrents={sortBy(downloadingTorrents, "percentDone", true)} onTorrentClick={setSelectedTorrent} downloadMode={true} />
-                </>
-              }
-              <h2>Uploading ({uploadingTorrents.length})</h2>
-              <TorrentTable torrents={sortBy(uploadingTorrents, "uploadedEver", true)} onTorrentClick={setSelectedTorrent} onStopClick={id => tmRef.current.stopTorrent(id)} />
-              <h2>Recently Finished ({recentlyFinishedTorrents.length})</h2>
-              <TorrentList torrents={sortBy(recentlyFinishedTorrents, "doneDate", true)} onTorrentClick={setSelectedTorrent} />
-              <h2>Inactive and Unfinished ({inactiveUnfinishedTorrents.length})</h2>
-              <TorrentList torrents={sortBy(inactiveUnfinishedTorrents, "percentDone", true)} onTorrentClick={setSelectedTorrent} />
-              <h2>Inactive and Finished ({inactiveFinishedTorrents.length})</h2>
-              <TorrentTreeList torrents={sortBy(inactiveFinishedTorrents, "name")} onTorrentClick={setSelectedTorrent} onStartClick={id => tmRef.current.startTorrent(id)} />
+              <h2>Downloading ({downloadingTorrents.length})</h2>
+              <TorrentTable torrents={sortBy(downloadingTorrents, "percentDone", true)} onTorrentClick={selectTorrent} downloadMode={true} />
             </>
           }
+          <h2>Uploading ({uploadingTorrents.length})</h2>
+          <TorrentTable torrents={sortBy(uploadingTorrents, "uploadedEver", true)} onTorrentClick={selectTorrent} onStopClick={id => tmRef.current.stopTorrent(id)} />
+          <h2>Recently Finished ({recentlyFinishedTorrents.length})</h2>
+          <TorrentList torrents={sortBy(recentlyFinishedTorrents, "doneDate", true)} onTorrentClick={selectTorrent} />
+          <h2>Inactive and Unfinished ({inactiveUnfinishedTorrents.length})</h2>
+          <TorrentList torrents={sortBy(inactiveUnfinishedTorrents, "percentDone", true)} onTorrentClick={selectTorrent} />
+          <h2>Inactive and Finished ({inactiveFinishedTorrents.length})</h2>
+          <TorrentTreeList torrents={sortBy(inactiveFinishedTorrents, "name")} onTorrentClick={selectTorrent} onStartClick={id => tmRef.current.startTorrent(id)} />
         </div>
       }
       { page === "search" &&
@@ -152,6 +185,7 @@ function App() {
 }
 
 export default App;
+
 
 function isActive (torrent) {
   return torrent.rateDownload > 0 || torrent.rateUpload > 0;
