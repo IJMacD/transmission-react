@@ -89,7 +89,7 @@ export function ProgressGraph ({ data, startTime = NaN, color = "#4F4" }) {
         const x_start = isNaN(startTime) ? Math.min(x_0, (predicted_y_start - c) / m) : startTime;
         // End should be predicted end if m > 0, or
         // calculated to make [byte percent] === [time percent]
-        const x_end = m > 0 ? (y_end - c) / m : ((x_2 - x_start) / y_2 + x_start);
+        const x_end = !isNaN(m) && m > 0 ? (y_end - c) / m : ((x_2 - x_start) / y_2 + x_start);
 
         const x_range = x_end - x_start;
         const x_scale = graphWidth / x_range;
@@ -107,7 +107,6 @@ export function ProgressGraph ({ data, startTime = NaN, color = "#4F4" }) {
             ctx.moveTo((x - x_start) * x_scale, 0);
             ctx.lineTo((x - x_start) * x_scale, graphHeight);
             ctx.lineWidth = (((x - tz) % 86400000) === 0 ? 2 : 0.5) * devicePixelRatio;
-            console.log(`${formatTime(new Date(x))}: ${x % 86400000}`);
             ctx.strokeStyle = "#666";
             ctx.stroke();
             // ctx.fillText(formatTime(new Date(x)), (x - x_start) * x_scale - fontSize, graphHeight + fontSize);
@@ -157,20 +156,22 @@ export function ProgressGraph ({ data, startTime = NaN, color = "#4F4" }) {
         ctx.fillText(`${(y_2 * 100).toFixed()}%`, -devicePixelRatio, (1 - y_2) * graphHeight + fontSize / 2);
 
         // Diagonal Trendline
-        ctx.save();
-        ctx.beginPath();
-        ctx.rect(0, 0, graphWidth, graphHeight);
-        ctx.clip();
+        if (m > 0) {
+            ctx.save();
+            ctx.beginPath();
+            ctx.rect(0, 0, graphWidth, graphHeight);
+            ctx.clip();
 
-        ctx.beginPath();
-        const y_start = m * x_start + c;
-        ctx.moveTo(0, (1 - y_start) * graphHeight);
-        ctx.lineTo(graphWidth, 0);
-        ctx.setLineDash([2 * devicePixelRatio, 2 * devicePixelRatio]);
-        ctx.strokeStyle = "#333";
-        ctx.stroke();
+            ctx.beginPath();
+            const y_start = m * x_start + c;
+            ctx.moveTo(0, (1 - y_start) * graphHeight);
+            ctx.lineTo(graphWidth, 0);
+            ctx.setLineDash([2 * devicePixelRatio, 2 * devicePixelRatio]);
+            ctx.strokeStyle = "#333";
+            ctx.stroke();
 
-        ctx.restore();
+            ctx.restore();
+        }
 
         // Start text
         ctx.fillStyle = "#000";
@@ -180,7 +181,7 @@ export function ProgressGraph ({ data, startTime = NaN, color = "#4F4" }) {
         ctx.fillText(formatTime(d_start), 0, graphHeight + fontSize);
 
         // ETA text
-        if (l > 1) {
+        if (m > 0) {
             ctx.fillStyle = "#000";
             ctx.textAlign = "center";
             ctx.font = `${fontSize}px sans-serif`;
@@ -189,7 +190,7 @@ export function ProgressGraph ({ data, startTime = NaN, color = "#4F4" }) {
         }
 
         // Time percentage completion
-        if (x_2 < x_end) {
+        if (m > 0 && x_2 < x_end) {
             ctx.strokeStyle = "#008";
             ctx.beginPath();
             const x_2_px = (x_2 - x_start) * x_scale;

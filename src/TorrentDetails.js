@@ -78,8 +78,13 @@ export function TorrentDetails({ torrent, transmission, pathMappings }) {
   return (
     <div>
       <h2>{torrent.name} <a href={torrent.magnetLink} style={{fontSize:"0.5em",textDecoration:"none"}}>🧲</a></h2>
-      <p>⬇️ {formatBytesPerSecond(torrent.rateDownload)} (Avg: {formatBytesPerSecond(downloadAverage)}) ⬆️ {formatBytesPerSecond(torrent.rateUpload)} (Avg: {formatBytesPerSecond(uploadAverage)})</p>
-      <Graph data={graphData} options={graphOptions} />
+      {
+        torrent.status !== Transmission.STATUS_STOPPED &&
+        <>
+          <p>⬇️ {formatBytesPerSecond(torrent.rateDownload)} (Avg: {formatBytesPerSecond(downloadAverage)}) ⬆️ {formatBytesPerSecond(torrent.rateUpload)} (Avg: {formatBytesPerSecond(uploadAverage)})</p>
+          <Graph data={graphData} options={graphOptions} />
+        </>
+      }
       {
         torrent.status === Transmission.STATUS_DOWNLOAD &&
           <ProgressGraph data={[ data[0], data[3] ]} startTime={torrent.addedDate * 1000} />
@@ -127,11 +132,13 @@ export function TorrentDetails({ torrent, transmission, pathMappings }) {
             <dd>{new Date(Date.now() + (torrent.desiredAvailable / downloadAverage) * 1000).toISOString()} <span className="hint">in {formatDuration(torrent.desiredAvailable / downloadAverage)}</span></dd>
           </>
         }
-        {/* {torrent.rateDownload > 0 &&
-          <> */}
+        {
+          torrent.percentDone < 1 &&
+          <>
             <dt>Current Speed</dt>
             <dd>{formatBytesPerSecond(torrent.rateDownload)}</dd>
-          {/* </>} */}
+          </>
+        }
         <dt>Average Speed</dt>
         <dd>{formatBytesPerSecond(torrent.downloadedEver / torrent.secondsDownloading)}</dd>
         {
