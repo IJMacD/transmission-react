@@ -1,3 +1,6 @@
+import { formatBytes } from "./util";
+
+/** @typedef {Map<string, TreeMap|TorrentFile>} TreeMap */
 
 /**
  *
@@ -8,31 +11,34 @@
  * @returns
  */
 export function FileTreeList({ files, onRenameClick, pathMapping = null }) {
+  /** @type {TreeMap} */
   const map = new Map();
 
   for (const t of files) {
     const { name } = t;
 
-    let prevMap = map;
+    let parentMap = map;
     const segs = name.replace(/\/$/, "").split("/");
     const segsCount = segs.length;
     for (let i = 0; i < segsCount; i++) {
       const seg = segs[i];
 
       if (i === segsCount - 1) {
-        prevMap.set(seg, t);
+        parentMap.set(seg, t);
         break;
       }
 
-      let m
-      if (prevMap.has(seg)) {
-        m = prevMap.get(seg);
+      /** @type {TreeMap} */
+      let m;
+      if (parentMap.has(seg)) {
+        // @ts-ignore
+        m = parentMap.get(seg);
       } else {
         m = new Map();
-        prevMap.set(seg, m);
+        parentMap.set(seg, m);
       }
 
-      prevMap = m;
+      parentMap = m;
     }
   }
 
@@ -44,7 +50,7 @@ export function FileTreeList({ files, onRenameClick, pathMapping = null }) {
 /**
  *
  * @param {object} props
- * @param {Map<string, Map|TorrentFile>} props.item
+ * @param {TreeMap} props.item
  * @param {(newName: string) => void} props.onRenameClick
  * @param {string} [props.pathMapping]
  * @returns
@@ -69,6 +75,7 @@ function TreeItem ({ item, onRenameClick, pathMapping = null }) {
               <a href={`${pathMapping}/${value.name}`}>{key}</a> :
               key
             } {' '}
+            { formatBytes(value.length) }{' '}
             {((value.bytesCompleted/value.length)*100).toFixed()}% {' '}
             <button onClick={() => onRenameClick(value.name)}>Rename</button>
           </li>

@@ -27,7 +27,13 @@ export function MappingsPage ({ mappings, setMappings }) {
             return;
         }
 
-        setMappings(mappings => [ ...mappings, { base, path } ]);
+        setMappings(mappings => {
+            if (mappings.find(m => m.base === base)) {
+                alert("Base already exists");
+                return;
+            }
+            return [ ...mappings, { base, path } ];
+        });
         setBase("");
         setPath("");
     }

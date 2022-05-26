@@ -3,7 +3,9 @@ export function formatBytes(n) {
     return `${(n / (1024 * 1024 * 1024)).toFixed(3)} GB`;
   if (n >= 1024 * 1024)
     return `${(n / (1024 * 1024)).toFixed(3)} MB`;
-  return `${(n / 1024).toFixed(3)} kB`;
+  if (n >= 1024)
+    return `${(n / 1024).toFixed(3)} kB`;
+  return `${n.toFixed()} bytes`;
 }
 
 export function formatBytesPerSecond(n) {
