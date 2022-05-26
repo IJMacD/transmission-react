@@ -17,7 +17,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "proxy": "node ./proxy.js http://192.168.64.118:9091"
+    "proxy": "node ./proxy.js http://192.168.64.118:9091",
+    "deploy": "scp -r build/* nas:transmission-web"
   },
   "eslintConfig": {
     "extends": [
