@@ -55,6 +55,11 @@ dd > .TreeItem {
   border-color: #008;
 }
 
+.PieceMap-Piece--new {
+  background-color: #8F8;
+  border-color: #080;
+}
+
 .PeerIcons {
   display: flex;
 }

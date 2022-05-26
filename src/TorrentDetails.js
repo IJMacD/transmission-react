@@ -5,6 +5,7 @@ import Transmission from './Transmission';
 import { FileTreeList } from './FileTreeList';
 import { useDataLog } from './useDataLog';
 import { ProgressGraph } from './ProgressGraph';
+import PieceMap from './PieceMap';
 
 /**
  *
@@ -190,23 +191,6 @@ export function TorrentDetails({ torrent, transmission, pathMappings }) {
       { torrent.pieces && <PieceMap pieces={torrent.pieces} count={torrent.pieceCount} /> }
     </div>
   );
-}
-
-export function PieceMap ({ pieces, count }) {
-    return (
-      <div style={{ display: "flex", flexWrap: "wrap" }}>
-        {
-          [...Array(count)].map((_,i) => <div key={i} title={`Piece ${i}`} className={`PieceMap-Piece ${isPieceDone(pieces, i)?`PieceMap-Piece--done`:""}`} />)
-        }
-      </div>
-    );
-}
-
-function isPieceDone (pieces, i) {
-    const byteString = atob(pieces);
-    const byteIndex = Math.floor(i / 8);
-    const byteVal = byteString.charCodeAt(byteIndex);
-    return (byteVal & (128 >> (i % 8))) > 0;
 }
 
 export function PeerIcons ({ peers }) {

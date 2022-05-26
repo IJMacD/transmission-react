@@ -30,7 +30,7 @@ export function TorrentTable({ torrents, onTorrentClick = null, onStopClick = nu
             <td>{t.peersGettingFromUs + t.peersSendingToUs}</td>
             <td>
               {formatBytes(t.uploadedEver)} <span className="hint">({t.uploadRatio})</span>
-              {t.seedRatioLimit > t.uploadRatio && <> [{formatBytes(t.seedRatioLimit * t.sizeWhenDone)} <span className="hint">({t.seedRatioLimit})</span>]</>}
+              {t.seedRatioLimit > t.uploadRatio && <> [{formatBytes(t.seedRatioLimit * t.sizeWhenDone)} <span className="hint">({t.seedRatioLimit})</span>] ({((t.uploadRatio/t.seedRatioLimit)*100).toFixed()}%) </>}
             </td>
           </tr>
         ))}
