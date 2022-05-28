@@ -4,11 +4,12 @@ import { useRef, useEffect } from 'react';
  *
  * @param {object} props
  * @param {[ number[], number[] ]} props.data
- * @param {number} [props.startTime]
  * @param {string} [props.color]
+ * @param {number} [props.startTime]
+ * @param {string} [props.finalValueLabel]
  * @returns
  */
-export function ProgressGraph ({ data, startTime = NaN, color = "#4F4" }) {
+export function ProgressGraph ({ data, color = "#4F4", startTime = NaN, finalValueLabel = "" }) {
     /** @type {import('react').MutableRefObject<HTMLCanvasElement>} */
     const ref = useRef();
 
@@ -23,8 +24,13 @@ export function ProgressGraph ({ data, startTime = NaN, color = "#4F4" }) {
 
         const gutter = 25 * devicePixelRatio;
 
-        const graphWidth = width - gutter * 2;
+        const gutterLeft = gutter * 3;
+        const gutterRight = gutter;
+
+        const graphWidth = width - gutterLeft - gutterRight;
         const graphHeight = height - gutter * 2;
+
+        ctx.translate(gutterLeft, gutter);
 
         if (!data[1]) {
             return null;
@@ -96,8 +102,6 @@ export function ProgressGraph ({ data, startTime = NaN, color = "#4F4" }) {
         const x_range = x_end - x_start;
         const x_scale = graphWidth / x_range;
 
-        ctx.translate(gutter, gutter);
-
         const fontSize = 10 * devicePixelRatio;
         ctx.font = `${fontSize}px sans-serif`;
 
@@ -114,7 +118,7 @@ export function ProgressGraph ({ data, startTime = NaN, color = "#4F4" }) {
             // ctx.fillText(formatTime(new Date(x)), (x - x_start) * x_scale - fontSize, graphHeight + fontSize);
         }
 
-        // Background fill
+        // Byte percentage completion fill
         ctx.beginPath();
         ctx.rect(0, (1 - y_2) * graphHeight, graphWidth, graphHeight - (1 - y_2) * graphHeight);
         ctx.fillStyle = color;
@@ -152,10 +156,20 @@ export function ProgressGraph ({ data, startTime = NaN, color = "#4F4" }) {
         ctx.globalAlpha = 0.5;
         ctx.fill();
 
+        ctx.globalAlpha = 1;
+
         // Percent text
         ctx.fillStyle = color;
-        ctx.textAlign = "right";
-        ctx.fillText(`${(y_2 * 100).toFixed()}%`, -devicePixelRatio, (1 - y_2) * graphHeight + fontSize / 2);
+        ctx.textAlign = "left";
+        ctx.fillText(`${(y_2 * 100).toFixed()}%`, graphWidth + 5 * devicePixelRatio, (1 - y_2) * graphHeight + fontSize / 2);
+
+        // Final Value label
+        if (finalValueLabel.length > 0) {
+            ctx.fillStyle = "#000";
+            ctx.textAlign = "right";
+            ctx.font = `${fontSize}px sans-serif`;
+            ctx.fillText(finalValueLabel, -5 * devicePixelRatio, fontSize);
+        }
 
         // Diagonal Trendline
         if (m > 0) {
@@ -192,15 +206,20 @@ export function ProgressGraph ({ data, startTime = NaN, color = "#4F4" }) {
         }
 
         // Time percentage completion
-        if (m > 0 && x_2 < x_end) {
-            ctx.strokeStyle = "#008";
+        if (x_2 < x_end) {
+            ctx.strokeStyle = color;
             ctx.beginPath();
             const x_2_px = (x_2 - x_start) * x_scale;
             ctx.moveTo(x_2_px, 0);
             ctx.lineTo(x_2_px, graphHeight);
             ctx.stroke();
-            ctx.fillStyle = "#008";
-            ctx.textAlign = "center";
+            ctx.beginPath();
+            ctx.rect(0, 0, x_2_px, (1 - y_2) * graphHeight);
+            ctx.fillStyle = color;
+            ctx.globalAlpha = 0.1;
+            ctx.fill();
+            ctx.globalAlpha = 1;
+            ctx.textAlign = "right";
             ctx.font = `${fontSize}px sans-serif`;
             ctx.fillText(`${((x_2-x_start)/(x_end - x_start) * 100).toFixed()}%`, x_2_px, -5 * devicePixelRatio);
         }

@@ -88,11 +88,11 @@ export function TorrentDetails({ torrent, transmission, pathMappings }) {
       }
       {
         torrent.status === Transmission.STATUS_DOWNLOAD &&
-          <ProgressGraph data={[ data[0], data[3] ]} startTime={torrent.addedDate * 1000} />
+          <ProgressGraph data={[ data[0], data[3] ]} startTime={torrent.addedDate * 1000} finalValueLabel={formatBytes(torrent.sizeWhenDone)} />
       }
       {
         torrent.status === Transmission.STATUS_SEED && torrent.uploadRatio < torrent.seedRatioLimit &&
-          <ProgressGraph data={[ data[0], data[4] ]} startTime={torrent.addedDate * 1000} color="#F44" />
+          <ProgressGraph data={[ data[0], data[4] ]} startTime={torrent.addedDate * 1000} color="#F44" finalValueLabel={formatBytes(torrent.seedRatioLimit * torrent.sizeWhenDone)} />
       }
       <dl>
         <dt>Status</dt>
