@@ -384,10 +384,20 @@ export default class Transmission {
     }
 
     /**
+     * Add local or remote Torrent file, or magnet link
+     * @param {string} filename
+     */
+    addLink (filename) {
+        return this.rpc({ method: "torrent-add", arguments: { filename }});
+    }
+
+    /**
+     * Alias for addLink
+     * (Backwards compat)
      * @param {string} filename
      */
     addMagnet (filename) {
-        return this.rpc({ method: "torrent-add", arguments: { filename }});
+        return this.addLink(filename);
     }
 
     /**

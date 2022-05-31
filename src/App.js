@@ -12,6 +12,7 @@ import { useSavedState } from './useSavedState';
 import SearchPage from './SearchPage';
 import { useDataLog } from './useDataLog';
 import { MappingsPage } from './MappingsPage';
+import { RSSFeedPage } from './RSSFeedPage';
 
 function App() {
   /** @type {[ Torrent[], import('react').Dispatch<import('react').SetStateAction<Torrent[]>> ]} */
@@ -27,6 +28,7 @@ function App() {
   const [ uploadMax, setUploadMax ] = useSavedState("TRANSMISSION_UPLOAD_MAX", 0);
   const [ page, setPage ] = useState("torrents");
   const [ pathMappings, setPathMappings ] = useSavedState("TRANSMISSION_PATH_MAPPINGS", /** @type {FileSystemMapping[]} */([]));
+  const [ rssFeed, setRSSFeed ] = useState("https://");
 
   useEffect(() => {
     const run = () => {
@@ -91,6 +93,15 @@ function App() {
     }
   }
 
+  function handleAddRSS () {
+    const link = prompt("Enter RSS feed:", rssFeed);
+
+    if (link) {
+      setRSSFeed(link);
+      setPage("rss");
+    }
+  }
+
   function getTorrent (id, details = false) {
     if (details) {
       return torrentData.find(t => t.id === id);
@@ -143,7 +154,8 @@ function App() {
       <button onClick={() => setPage("search")} disabled={page === "search"}>Search</button>
       <button onClick={() => setPage("mappings")} disabled={page === "mappings"}>Mappings</button>
       <button onClick={handleAddLink}>Add Magnet</button>
-      { selectedTorrent < 0 && <Graph data={data} options={graphOptions} /> }
+      <button onClick={handleAddRSS}>Load RSS</button>
+      { page === "torrents" && <Graph data={data} options={graphOptions} /> }
       {
         page === "peers" &&
         <div>
@@ -155,7 +167,13 @@ function App() {
         page === "mappings" &&
         <MappingsPage mappings={pathMappings} setMappings={setPathMappings} />
       }
-      <>
+      {
+        page === "rss" &&
+        <div>
+          <button onClick={() => setPage("torrents")}>Close</button>
+          <RSSFeedPage feed={rssFeed} transmission={tmRef.current} />
+        </div>
+      }
       {
         openTorrentTabs.map(id => {
           return <div key={id} style={{ display: page === "torrents" && selectedTorrent === id ? "block" : "none" }}>
@@ -164,7 +182,6 @@ function App() {
           </div>
         })
       }
-      </>
       { page === "torrents" && selectedTorrent === -1 &&
         <div>
           <h1>{torrents.length} torrents</h1>
