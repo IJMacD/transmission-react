@@ -417,4 +417,12 @@ export default class Transmission {
     renameFile (ids, path, name) {
         return this.rpc({ method: "torrent-rename-path", arguments: { ids, path, name }}).then(() => this.notifyTorrents(ids));
     }
+
+    /**
+     * @param {string} name
+     * @param {any} value
+     */
+    setSession (name, value) {
+        return this.rpc({ method: "session-set", arguments: { [name]: value } });
+    }
 }

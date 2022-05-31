@@ -29,16 +29,16 @@ function App() {
   const [ page, setPage ] = useState("torrents");
   const [ pathMappings, setPathMappings ] = useSavedState("TRANSMISSION_PATH_MAPPINGS", /** @type {FileSystemMapping[]} */([]));
   const [ rssFeed, setRSSFeed ] = useState("https://");
+  const [ sessionData, setSessionData ] = useState({});
 
   useEffect(() => {
     const run = () => {
       const tm = tmRef.current;
       tm.getTorrents().then(setTorrents, console.log);
+      tm.getSession().then(setSessionData, console.log);
     };
     const id = setInterval(run, 10 * 1000);
     run();
-
-    tmRef.current.getSession().then(console.log, console.log);
 
     return () => clearInterval(id);
   }, []);
@@ -109,6 +109,12 @@ function App() {
     return torrents.find(t => t.id === id);
   }
 
+  function setAltSpeedEnabled (enabled) {
+    tmRef.current.setSession("alt-speed-enabled", enabled).then(() => {
+      tmRef.current.getSession().then(setSessionData);
+    });
+  }
+
   const graphOptions = {
     horizontalGridlines: 500 * 1024,
     colour: ["#CFC","#FCC","#5F5","#F55"],
@@ -130,7 +136,11 @@ function App() {
 
   return (
     <div className="App">
-      <p>⬇️ {formatBytesPerSecond(totalDown)} (Avg: {formatBytesPerSecond(downloadAverage.current)}, Max: {formatBytesPerSecond(downloadMax)}) ⬆️ {formatBytesPerSecond(totalUp)} (Avg: {formatBytesPerSecond(uploadAverage.current)}, Max: {formatBytesPerSecond(uploadMax)})</p>
+      <p>
+        ⬇️ {formatBytesPerSecond(totalDown)} (Avg: {formatBytesPerSecond(downloadAverage.current)}, Max: {formatBytesPerSecond(downloadMax)}){' '}
+        ⬆️ {formatBytesPerSecond(totalUp)} (Avg: {formatBytesPerSecond(uploadAverage.current)}, Max: {formatBytesPerSecond(uploadMax)}){' '}
+        Alt Speed: <input type="checkbox" checked={sessionData['alt-speed-enabled']} onChange={e => setAltSpeedEnabled(e.target.checked)} />
+      </p>
       <button onClick={() => { setPage("torrents"); setSelectedTorrent(-1); }} disabled={page === "torrents" && selectedTorrent === -1}>Torrents</button>
       {
         openTorrentTabs.map(id => {
