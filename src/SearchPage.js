@@ -1,7 +1,7 @@
 import { useState } from "react"
 import Transmission from "./Transmission";
 
-const SEARCH_ROOT = "http://nas.lan/magnet_search.php";
+const SEARCH_ROOT = "//" + (window.location.hostname === "localhost" ? "nas.home.ijmacd.com" : window.location.hostname) + "/magnet_search.php";
 
 /**
  *
