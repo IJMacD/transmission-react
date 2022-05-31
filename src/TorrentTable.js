@@ -1,3 +1,4 @@
+import { ProgressBar } from './ProgressBar';
 import { formatBytesPerSecond, formatBytes, countSeeds, formatDuration } from './util';
 
 export function TorrentTable({ torrents, onTorrentClick = null, onStopClick = null, downloadMode = false }) {
@@ -10,7 +11,7 @@ export function TorrentTable({ torrents, onTorrentClick = null, onStopClick = nu
           <th>{ downloadMode ? "ETA" : "Upload Speed" }</th>
           <th>Seeds</th>
           <th>Peers</th>
-          <th>Uploaded</th>
+          { !downloadMode && <th>Uploaded</th> }
         </tr>
       </thead>
       <tbody>
@@ -19,6 +20,9 @@ export function TorrentTable({ torrents, onTorrentClick = null, onStopClick = nu
             <td>
               {t.name}{' '}
               {t.percentDone < 1 && <span className="hint">{(t.percentDone * 100).toFixed(1)}%</span>}
+              { downloadMode && <ProgressBar value={t.percentDone} color="#8F8" /> }
+              { t.percentDone === 1 && <span className="hint">{(t.uploadRatio/t.seedRatioLimit * 100).toFixed(1)}%</span>}
+              { !downloadMode && <ProgressBar value={(t.uploadRatio/t.seedRatioLimit)} color="#F88" /> }
             </td>
             { downloadMode && <td>{t.rateDownload > 0 && formatBytesPerSecond(t.rateDownload)}</td> }
             { downloadMode ?
@@ -28,10 +32,12 @@ export function TorrentTable({ torrents, onTorrentClick = null, onStopClick = nu
             }
             <td>{countSeeds(t)} {countSeeds(t) > 10 && t.seedRatioLimit < t.uploadRatio ? <span onClick={e => { e.stopPropagation(); onStopClick(t.id); }}>⚠️</span> : null}</td>
             <td>{t.peersGettingFromUs + t.peersSendingToUs}</td>
-            <td>
-              {formatBytes(t.uploadedEver)} <span className="hint">({t.uploadRatio})</span>
-              {t.seedRatioLimit > t.uploadRatio && <> [{formatBytes(t.seedRatioLimit * t.sizeWhenDone)} <span className="hint">({t.seedRatioLimit})</span>] ({((t.uploadRatio/t.seedRatioLimit)*100).toFixed()}%) </>}
-            </td>
+            { !downloadMode &&
+              <td>
+                {formatBytes(t.uploadedEver)} <span className="hint">({t.uploadRatio})</span>
+                {t.seedRatioLimit > t.uploadRatio && <> [{formatBytes(t.seedRatioLimit * t.sizeWhenDone)} <span className="hint">({t.seedRatioLimit})</span>] </>}
+              </td>
+            }
           </tr>
         ))}
       </tbody>

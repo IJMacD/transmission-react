@@ -76,6 +76,12 @@ export function TorrentDetails({ torrent, transmission, pathMappings }) {
   const foundMapping = pathMappings.find(m => torrent.downloadDir.startsWith(m.base));
   const pathMapping = foundMapping ? foundMapping.path + torrent.downloadDir.substring(foundMapping.base.length) : null;
 
+  // ETA Debug
+  const eta = new Date(Date.now() + (torrent.desiredAvailable / downloadAverage) * 1000);
+  if (isNaN(+eta)) {
+    console.log({message: "ETA Debug", eta, desiredAvailable: torrent.desiredAvailable, downloadAverage });
+  }
+
   return (
     <div>
       <h2>{torrent.name} <a href={torrent.magnetLink} style={{fontSize:"0.5em",textDecoration:"none"}}>🧲</a></h2>
@@ -170,13 +176,18 @@ export function TorrentDetails({ torrent, transmission, pathMappings }) {
         </dd>
         <dt>Seeds</dt>
         <dd>{seedCount}</dd>
-        {torrent.peers.length > 0 &&
+        { torrent.peers.length > 0 &&
           <>
             <dt>Peers</dt>
             <dd>
               <PeerIcons peers={torrent.peers} />
             </dd>
-          </>}
+          </>
+        }
+        <dt>Available</dt>
+        <dd>
+          { (100 * (torrent.desiredAvailable + torrent.downloadedEver) / torrent.sizeWhenDone).toFixed() }%
+        </dd>
         <dt>Pieces</dt>
         <dd>{torrent.pieceCount} × {formatBytes(torrent.pieceSize)}</dd>
         { torrent.files &&

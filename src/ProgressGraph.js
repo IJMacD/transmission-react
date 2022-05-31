@@ -161,7 +161,7 @@ export function ProgressGraph ({ data, color = "#4F4", startTime = NaN, finalVal
         // Percent text
         ctx.fillStyle = color;
         ctx.textAlign = "left";
-        ctx.fillText(`${(y_2 * 100).toFixed()}%`, graphWidth + 5 * devicePixelRatio, (1 - y_2) * graphHeight + fontSize / 2);
+        ctx.fillText(`${(y_2 * 100).toFixed()}%`, graphWidth + 5 * devicePixelRatio, (1 - y_2) * graphHeight);
 
         // Final Value label
         if (finalValueLabel.length > 0) {

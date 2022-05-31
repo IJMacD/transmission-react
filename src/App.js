@@ -122,7 +122,7 @@ function App() {
   const uploadingTorrents = torrents.filter(t => t.status === Transmission.STATUS_SEED || t.status === Transmission.STATUS_SEED_WAIT);
   // const recentlyFinishedTorrents = torrents.filter(t => t.percentDone === 1 && isRecentlyFinished(t));
   const stoppedTorrents = torrents.filter(t => t.status === Transmission.STATUS_STOPPED);
-  const finishedTorrents = stoppedTorrents.filter(t => t.percentDone === 1);
+  const finishedTorrents = torrents.filter(t => t.percentDone === 1);
   const unfinishedTorrents = stoppedTorrents.filter(t => t.percentDone !== 1);
 
   const totalDown = activeTorrents.reduce((total,torrent) => total + torrent.rateDownload, 0);
@@ -132,7 +132,6 @@ function App() {
     <div className="App">
       <p>⬇️ {formatBytesPerSecond(totalDown)} (Avg: {formatBytesPerSecond(downloadAverage.current)}, Max: {formatBytesPerSecond(downloadMax)}) ⬆️ {formatBytesPerSecond(totalUp)} (Avg: {formatBytesPerSecond(uploadAverage.current)}, Max: {formatBytesPerSecond(uploadMax)})</p>
       <button onClick={() => { setPage("torrents"); setSelectedTorrent(-1); }} disabled={page === "torrents" && selectedTorrent === -1}>Torrents</button>
-      <>
       {
         openTorrentTabs.map(id => {
           const name = getTorrent(id)?.name || id;
@@ -149,7 +148,6 @@ function App() {
           );
         })
       }
-      </>
       <button onClick={() => setPage("peers")} disabled={page === "peers"}>Peers</button>
       <button onClick={() => setPage("search")} disabled={page === "search"}>Search</button>
       <button onClick={() => setPage("mappings")} disabled={page === "mappings"}>Mappings</button>
