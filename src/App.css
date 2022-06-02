@@ -60,6 +60,10 @@ dd > .TreeItem {
   border-color: #080;
 }
 
+.PieceMap-Piece--highlight {
+  outline: 2px solid yellow;
+}
+
 .PeerIcons {
   display: flex;
 }

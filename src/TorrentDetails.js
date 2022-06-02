@@ -21,6 +21,8 @@ export function TorrentDetails({ torrent, transmission, pathMappings }) {
   const [ downloadAverage, setDownloadAverage ] = useState(torrent ? torrent.rateDownload : NaN);
   const [ uploadAverage, setUploadAverage ] = useState(torrent ? torrent.rateUpload : NaN);
 
+  const [ pieceHighlightRange, setPieceHighlightRange ] = useState(/** @type {[number, number]} */(null));
+
   useEffect(() => {
     if (torrent) {
       const uploadPercent = torrent.uploadRatio / torrent.seedRatioLimit;
@@ -57,6 +59,21 @@ export function TorrentDetails({ torrent, transmission, pathMappings }) {
     if (name) {
       transmission.renameFile(torrent.id, path, name);
     }
+  }
+
+  function handleFileHoverStart (file) {
+    let cumlSize = 0;
+    for (const f of torrent.files) {
+      if (file === f) break;
+      cumlSize += f.length;
+    }
+    const firstPiece = Math.floor(cumlSize / torrent.pieceSize);
+    const lastPiece = Math.floor((cumlSize + file.length) / torrent.pieceSize);
+    setPieceHighlightRange([firstPiece, lastPiece]);
+  }
+
+  function handleFileHoverEnd (file) {
+    setPieceHighlightRange(null);
   }
 
   const seedCount = countSeeds(torrent);
@@ -193,13 +210,13 @@ export function TorrentDetails({ torrent, transmission, pathMappings }) {
         { torrent.files &&
           <>
             <dt>Files</dt>
-            <dd>
-              <FileTreeList files={torrent.files} onRenameClick={handleRename} pathMapping={pathMapping} />
+            <dd style={{maxHeight:"50vh",overflowY:"auto"}}>
+              <FileTreeList files={torrent.files} onRenameClick={handleRename} pathMapping={pathMapping} onHoverStart={handleFileHoverStart} onHoverEnd={handleFileHoverEnd} />
             </dd>
           </>
         }
       </dl>
-      { torrent.pieces && <PieceMap pieces={torrent.pieces} count={torrent.pieceCount} /> }
+      { torrent.pieces && <PieceMap pieces={torrent.pieces} count={torrent.pieceCount} highlightRange={pieceHighlightRange} /> }
     </div>
   );
 }

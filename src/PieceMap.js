@@ -3,7 +3,7 @@ import { useDebounce } from './useDebounce';
 
 export default React.memo(PieceMap);
 
-function PieceMap ({ pieces, count }) {
+function PieceMap ({ pieces, count, highlightRange = null }) {
   const [ previousPieces, setPreviousPieces ] = useState("");
   const debouncedPreviousPieces = useDebounce(previousPieces, 2000);
 
@@ -16,7 +16,7 @@ function PieceMap ({ pieces, count }) {
       {[...Array(count)].map((_, i) => <div
         key={i}
         title={`Piece ${i}`}
-        className={`PieceMap-Piece ${isPieceDone(pieces, i) ? `PieceMap-Piece--done` : ""} ${isPieceNew(pieces, debouncedPreviousPieces, i) ? `PieceMap-Piece--new` : ""}`} />
+        className={`PieceMap-Piece ${isPieceDone(pieces, i) ? `PieceMap-Piece--done` : ""} ${isPieceNew(pieces, debouncedPreviousPieces, i) ? `PieceMap-Piece--new` : ""} ${highlightRange && i >= highlightRange[0] && i <= highlightRange[1] ? `PieceMap-Piece--highlight` : ""}`} />
       )}
     </div>
   );
