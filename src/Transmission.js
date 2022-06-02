@@ -425,4 +425,13 @@ export default class Transmission {
     setSession (name, value) {
         return this.rpc({ method: "session-set", arguments: { [name]: value } });
     }
+
+
+    /**
+     * @param {number|string} ids
+     * @param {boolean} [deleteFiles]
+     */
+    removeTorrent (ids, deleteFiles = false) {
+        return this.rpc({ method: "torrent-remove", arguments: { ids, "delete-local-data": deleteFiles } });
+    }
 }

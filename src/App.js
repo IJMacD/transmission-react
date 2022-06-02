@@ -57,7 +57,12 @@ function App() {
 
     pushData(Date.now(), totalDown, totalUp, downloadAverage.current, uploadAverage.current);
 
-  }, [torrents, pushData, setDownloadMax, setUploadMax]);
+    // Filter out removed torrents
+    const torrentIDs = torrents.map(t => t.id);
+    setOpenTorrentTabs(openTorrentTabs => openTorrentTabs.filter(id => torrentIDs.includes(id)));
+    setSelectedTorrent(selectedTorrent => torrentIDs.includes(selectedTorrent) ? selectedTorrent : -1)
+
+  }, [torrents, pushData, setDownloadMax, setUploadMax, setOpenTorrentTabs]);
 
   useEffect(() => {
     if (openTorrentTabs.length > 0) {

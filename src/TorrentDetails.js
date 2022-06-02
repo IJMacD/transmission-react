@@ -76,6 +76,10 @@ export function TorrentDetails({ torrent, transmission, pathMappings }) {
     setPieceHighlightRange(null);
   }
 
+  function handleRemove (deleteFiles = false) {
+    transmission.removeTorrent(torrent.id, deleteFiles);
+  }
+
   const seedCount = countSeeds(torrent);
 
   const graphData = [
@@ -130,6 +134,9 @@ export function TorrentDetails({ torrent, transmission, pathMappings }) {
           {' '}
           { torrent.status !== Transmission.STATUS_STOPPED && <button onClick={handleStop}>Stop</button> }
           { torrent.status === Transmission.STATUS_STOPPED && <button onClick={handleStart}>Start</button> }
+          {' '}
+          <button onClick={() => handleRemove()}>Remove</button>{' '}
+          <button onClick={() => window.confirm("Are you sure you want to delete the files on disk?") && handleRemove(true)}>Delete Files</button>
         </dd>
         <dt>Size</dt>
         <dd title={`${torrent.sizeWhenDone} bytes`}>{formatBytes(torrent.sizeWhenDone)}</dd>
