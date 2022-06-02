@@ -179,8 +179,17 @@ export function ProgressGraph ({ data, color = "#4F4", startTime = NaN, finalVal
             ctx.clip();
 
             ctx.beginPath();
-            const y_start = m * x_start + c;
-            ctx.moveTo(0, (1 - y_start) * graphHeight);
+
+            const extrapolateBackwards = false;
+
+            if (extrapolateBackwards) {
+                const y_start = m * x_start + c;
+                ctx.moveTo(0, (1 - y_start) * graphHeight);
+            }
+            else {
+                ctx.moveTo((x_1 - x_start) * x_scale, (1 - y_1) * graphHeight);
+            }
+
             ctx.lineTo(graphWidth, 0);
             ctx.setLineDash([2 * devicePixelRatio, 2 * devicePixelRatio]);
             ctx.strokeStyle = "#333";

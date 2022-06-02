@@ -139,7 +139,7 @@ function App() {
       <p>
         ⬇️ {formatBytesPerSecond(totalDown)} (Avg: {formatBytesPerSecond(downloadAverage.current)}, Max: {formatBytesPerSecond(downloadMax)}){' '}
         ⬆️ {formatBytesPerSecond(totalUp)} (Avg: {formatBytesPerSecond(uploadAverage.current)}, Max: {formatBytesPerSecond(uploadMax)}){' '}
-        Alt Speed: <input type="checkbox" checked={sessionData['alt-speed-enabled']} onChange={e => setAltSpeedEnabled(e.target.checked)} />
+        <label>Alt Speed: <input type="checkbox" checked={sessionData['alt-speed-enabled']} onChange={e => setAltSpeedEnabled(e.target.checked)} /></label>
       </p>
       <button onClick={() => { setPage("torrents"); setSelectedTorrent(-1); }} disabled={page === "torrents" && selectedTorrent === -1}>Torrents</button>
       {
