@@ -1,4 +1,4 @@
-import { formatBytes } from "./util";
+import { formatBytes } from "../util";
 
 /** @typedef {Map<string, TreeMap|(TorrentFile & {firstPiece: number; lastPiece: number})>} TreeMap */
 

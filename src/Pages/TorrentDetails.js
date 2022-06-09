@@ -1,17 +1,17 @@
-import { formatBytesPerSecond, formatBytes, formatDuration, countSeeds } from './util';
-import { Graph } from './Graph';
 import { useEffect, useState } from 'react';
-import Transmission from './Transmission';
-import { FileTreeList } from './FileTreeList';
-import { useDataLog } from './useDataLog';
-import { ProgressGraph } from './ProgressGraph';
-import PieceMap from './PieceMap';
+import { formatBytesPerSecond, formatBytes, formatDuration, countSeeds } from '../util';
+import { Graph } from '../Components/Graph';
+import Transmission from '../Transmission';
+import { FileTreeList } from '../Components/FileTreeList';
+import { useDataLog } from '../hooks/useDataLog';
+import { ProgressGraph } from '../Components/ProgressGraph';
+import PieceMap from '../Components/PieceMap';
 
 /**
  *
  * @param {object} props
  * @param {Torrent} props.torrent
- * @param {import('./Transmission').default} props.transmission
+ * @param {import('../Transmission').default} props.transmission
  * @param {FileSystemMapping[]} props.pathMappings
  * @returns
  */

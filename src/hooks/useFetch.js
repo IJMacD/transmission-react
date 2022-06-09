@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react';
 
+/**
+ * @param {string} url
+ */
 export function useFetch (url) {
     const [ data, setData ] = useState(null);
     const [ loading, setLoading ] = useState(true);
@@ -38,7 +41,7 @@ export function useFetch (url) {
                 }
             });
 
-        return () => current = false;
+        return () => { current = false; }
     }, [url]);
 
     return [ data, loading, error ];

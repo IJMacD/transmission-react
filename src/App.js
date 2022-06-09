@@ -1,18 +1,18 @@
-import { useEffect, useRef, useState, Fragment } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import './App.css';
 import { formatBytesPerSecond, sortBy } from './util';
 import Transmission from "./Transmission";
-import { Graph } from './Graph';
-import { TorrentTable } from './TorrentTable';
-import { TorrentDetails } from './TorrentDetails';
-import { TorrentList } from './TorrentList';
-import { TorrentTreeList } from './TorrentTreeList';
-import { PeerStats } from './PeerStats';
-import { useSavedState } from './useSavedState';
-import SearchPage from './SearchPage';
-import { useDataLog } from './useDataLog';
-import { MappingsPage } from './MappingsPage';
-import { RSSFeedPage } from './RSSFeedPage';
+import { Graph } from './Components/Graph';
+import { TorrentTable } from './Components/TorrentTable';
+import { TorrentDetails } from './Pages/TorrentDetails';
+import { TorrentList } from './Components/TorrentList';
+import { TorrentTreeList } from './Components/TorrentTreeList';
+import { PeerStats } from './Pages/PeerStats';
+import { useSavedState } from './hooks/useSavedState';
+import SearchPage from './Pages/SearchPage';
+import { useDataLog } from './hooks/useDataLog';
+import { MappingsPage } from './Pages/MappingsPage';
+import { RSSFeedPage } from './Pages/RSSFeedPage';
 
 function App() {
   /** @type {[ Torrent[], import('react').Dispatch<import('react').SetStateAction<Torrent[]>> ]} */

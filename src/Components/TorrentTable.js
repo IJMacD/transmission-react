@@ -1,5 +1,5 @@
 import { ProgressBar } from './ProgressBar';
-import { formatBytesPerSecond, formatBytes, countSeeds, formatDuration } from './util';
+import { formatBytesPerSecond, formatBytes, countSeeds, formatDuration } from '../util';
 
 export function TorrentTable({ torrents, onTorrentClick = null, onStopClick = null, downloadMode = false }) {
   return (

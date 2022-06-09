@@ -1,4 +1,4 @@
-import { countSeeds, formatBytesPerSecond } from './util';
+import { countSeeds, formatBytesPerSecond } from '../util';
 
 export function TorrentList({ torrents, onTorrentClick=null, onStartClick=null }) {
   return <ul>

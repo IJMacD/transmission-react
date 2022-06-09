@@ -1,5 +1,5 @@
-import Transmission from './Transmission';
-import { useFetch } from './useFetch';
+import Transmission from '../Transmission';
+import { useFetch } from '../hooks/useFetch';
 
 /**
  * @param {object} props
