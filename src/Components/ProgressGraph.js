@@ -58,6 +58,7 @@ export function ProgressGraph ({ data, color = "#4F4", startTime = NaN, finalVal
         const x_1 = data[0][i_1];
         const x_2 = data[0][i_2];
 
+        const y_0 = data[1][0];
         const y_1 = data[1][i_1];
         const y_2 = data[1][i_2];
 
@@ -245,9 +246,19 @@ export function ProgressGraph ({ data, color = "#4F4", startTime = NaN, finalVal
 
         // Recorded data
         {
-            // Data line
+            // Dashed line to start of recording
             ctx.beginPath();
             ctx.moveTo(0, graphHeight);
+            ctx.lineTo((x_0 - x_start) * x_scale, (1 - y_0) * graphHeight)
+            ctx.strokeStyle = color;
+            ctx.globalAlpha = 1;
+            ctx.lineWidth = 2 * devicePixelRatio;
+            ctx.setLineDash([4 * devicePixelRatio,4 * devicePixelRatio]);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Data line
+            ctx.beginPath();
             for (let i = 0; i < l; i++) {
                 const x = data[0][i];
                 const y = data[1][i];
@@ -255,9 +266,6 @@ export function ProgressGraph ({ data, color = "#4F4", startTime = NaN, finalVal
                     ctx.lineTo((x - x_start) * x_scale, (1 - y) * graphHeight);
                 }
             }
-            ctx.strokeStyle = color;
-            ctx.globalAlpha = 1;
-            ctx.lineWidth = 2 * devicePixelRatio;
             ctx.stroke();
 
             if (y_2 < 1) {
