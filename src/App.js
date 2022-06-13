@@ -14,12 +14,14 @@ import { useDataLog } from './hooks/useDataLog';
 import { MappingsPage } from './Pages/MappingsPage';
 import { RSSFeedPage } from './Pages/RSSFeedPage';
 
+const NO_TORRENT = -1;
+
 function App() {
   /** @type {[ Torrent[], import('react').Dispatch<import('react').SetStateAction<Torrent[]>> ]} */
   const [torrents, setTorrents] = useState([]);
   const tmRef = useRef(new Transmission(process.env.REACT_APP_API_ROOT));
   const [ data, pushData ] = useDataLog();
-  const [ selectedTorrent, setSelectedTorrent ] = useState(-1);
+  const [ selectedTorrent, setSelectedTorrent ] = useState(NO_TORRENT);
   const [ openTorrentTabs, setOpenTorrentTabs ] = useState(/** @type {number[]} */([]));
   const [ torrentData, setTorrentData ] = useState(/** @type {Torrent[]} */([]));
   const downloadAverage = useRef(NaN);
@@ -60,7 +62,7 @@ function App() {
     // Filter out removed torrents
     const torrentIDs = torrents.map(t => t.id);
     setOpenTorrentTabs(openTorrentTabs => openTorrentTabs.filter(id => torrentIDs.includes(id)));
-    setSelectedTorrent(selectedTorrent => torrentIDs.includes(selectedTorrent) ? selectedTorrent : -1)
+    setSelectedTorrent(selectedTorrent => torrentIDs.includes(selectedTorrent) ? selectedTorrent : NO_TORRENT)
 
   }, [torrents, pushData, setDownloadMax, setUploadMax, setOpenTorrentTabs]);
 
@@ -86,7 +88,7 @@ function App() {
   }
 
   function closeTorrent (id) {
-    setSelectedTorrent(selectedID => selectedID === id ? -1 : selectedID);
+    setSelectedTorrent(selectedID => selectedID === id ? NO_TORRENT : selectedID);
     setOpenTorrentTabs(openTorrentTabs => openTorrentTabs.filter(t => t !== id));
   }
 
@@ -144,9 +146,9 @@ function App() {
       <p>
         ⬇️ {formatBytesPerSecond(totalDown)} (Avg: {formatBytesPerSecond(downloadAverage.current)}, Max: {formatBytesPerSecond(downloadMax)}){' '}
         ⬆️ {formatBytesPerSecond(totalUp)} (Avg: {formatBytesPerSecond(uploadAverage.current)}, Max: {formatBytesPerSecond(uploadMax)}){' '}
-        <label>Alt Speed: <input type="checkbox" checked={sessionData['alt-speed-enabled']} onChange={e => setAltSpeedEnabled(e.target.checked)} /></label>
+        <label>Alt Speed: <input type="checkbox" checked={sessionData['alt-speed-enabled']||false} onChange={e => setAltSpeedEnabled(e.target.checked)} /></label>
       </p>
-      <button onClick={() => { setPage("torrents"); setSelectedTorrent(-1); }} disabled={page === "torrents" && selectedTorrent === -1}>Torrents</button>
+      <button onClick={() => { setPage("torrents"); setSelectedTorrent(NO_TORRENT); }} disabled={page === "torrents" && selectedTorrent === NO_TORRENT}>Torrents</button>
       {
         openTorrentTabs.map(id => {
           const name = getTorrent(id)?.name || id;
@@ -168,7 +170,7 @@ function App() {
       <button onClick={() => setPage("mappings")} disabled={page === "mappings"}>Mappings</button>
       <button onClick={handleAddLink}>Add Magnet</button>
       <button onClick={handleAddRSS}>Load RSS</button>
-      { page === "torrents" && <Graph data={data} options={graphOptions} /> }
+      { page === "torrents" && selectedTorrent === NO_TORRENT && <Graph data={data} options={graphOptions} /> }
       {
         page === "peers" &&
         <div>
@@ -195,7 +197,7 @@ function App() {
           </div>
         })
       }
-      { page === "torrents" && selectedTorrent === -1 &&
+      { page === "torrents" && selectedTorrent === NO_TORRENT &&
         <div>
           <h1>{torrents.length} torrents</h1>
           { downloadingTorrents.length > 0 &&

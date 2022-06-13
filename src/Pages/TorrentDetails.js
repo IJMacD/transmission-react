@@ -97,11 +97,21 @@ export function TorrentDetails({ torrent, transmission, pathMappings }) {
   const foundMapping = pathMappings.find(m => torrent.downloadDir.startsWith(m.base));
   const pathMapping = foundMapping ? foundMapping.path + torrent.downloadDir.substring(foundMapping.base.length) : null;
 
-  // ETA Debug
-  const eta = new Date(Date.now() + (torrent.desiredAvailable / downloadAverage) * 1000);
-  if (isNaN(+eta)) {
-    console.log({message: "ETA Debug", eta, desiredAvailable: torrent.desiredAvailable, downloadAverage });
-  }
+  // Only show relevant slice of data
+  const downloadRecordedStatsEndIndex = data[3]?.indexOf(1);
+  /** @type {[number[], number[]]} */
+  const downloadRecordedStats = downloadRecordedStatsEndIndex < 0 ?
+  // Incomplete
+  [ data[0], data[3] ] :
+  (
+    // If we don't have  any real data (i.e. already complete)
+    !downloadRecordedStatsEndIndex || downloadRecordedStatsEndIndex === 0 ?
+      [[],[]] :
+      [ data[0].slice(0, downloadRecordedStatsEndIndex), data[3].slice(0, downloadRecordedStatsEndIndex) ]
+  );
+
+  /** @type {[number[], number[]]} */
+  const uploadRecordedStats = [ data[0], data[4] ];
 
   return (
     <div>
@@ -114,12 +124,12 @@ export function TorrentDetails({ torrent, transmission, pathMappings }) {
         </>
       }
       {
-        torrent.status === Transmission.STATUS_DOWNLOAD &&
-          <ProgressGraph data={[ data[0], data[3] ]} startTime={torrent.addedDate * 1000} finalValueLabel={formatBytes(torrent.sizeWhenDone)} />
+        downloadRecordedStats[0].length > 1 &&
+          <ProgressGraph data={downloadRecordedStats} startTime={torrent.addedDate * 1000} finalValueLabel={formatBytes(torrent.sizeWhenDone)} />
       }
       {
-        torrent.status === Transmission.STATUS_SEED && torrent.uploadRatio < torrent.seedRatioLimit &&
-          <ProgressGraph data={[ data[0], data[4] ]} startTime={torrent.addedDate * 1000} color="#F44" finalValueLabel={formatBytes(torrent.seedRatioLimit * torrent.sizeWhenDone)} />
+        torrent.status === Transmission.STATUS_SEED && uploadRecordedStats.length > 0 &&
+          <ProgressGraph data={uploadRecordedStats} startTime={torrent.addedDate * 1000} color="#F44" finalValueLabel={formatBytes(torrent.seedRatioLimit * torrent.sizeWhenDone)} />
       }
       <dl>
         <dt>Status</dt>
