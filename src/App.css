@@ -1,6 +1,47 @@
 .App {
-  width: 90%;
-  margin: 10px auto;
+  display: flex;
+  min-height: 100vh;
+}
+
+.App-Sidebar {
+  flex: 0 0 320px;
+  border-right: 1px solid #666;
+  max-width: 320px;
+}
+
+.App-Sidebar ul {
+  padding: 0;
+}
+
+.App-Sidebar li {
+  padding: 0.2em 0.5em;
+  border-bottom: 1px solid #CCC;
+  display: flex;
+  cursor: pointer;
+}
+
+.App-Sidebar li:hover {
+  background-color: #E9E9E9;
+}
+
+.App-Sidebar li.selected {
+  font-weight: bold;
+}
+
+.App-Main {
+  flex: 1;
+}
+
+.App-StatusBar {
+  margin: 0;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 0.5em 1em;
+  background-color: white;
+  z-index: 1;
+  border-top: 1px solid rgba(0,0,0,0.25);
 }
 
 canvas {
@@ -113,7 +154,7 @@ dd > .TreeItem {
 }
 
 .TorrentTabButton {
-  max-width: 150px;
+  flex: 1;
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;

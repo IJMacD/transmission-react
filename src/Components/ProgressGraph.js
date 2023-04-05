@@ -1,3 +1,4 @@
+import React from 'react';
 import { useRef, useEffect } from 'react';
 
 /**
@@ -10,12 +11,16 @@ import { useRef, useEffect } from 'react';
  * @returns
  */
 export function ProgressGraph ({ data, color = "#4F4", startTime = NaN, finalValueLabel = "" }) {
-    /** @type {import('react').MutableRefObject<HTMLCanvasElement>} */
-    const ref = useRef();
+    /** @type {import('react').MutableRefObject<HTMLCanvasElement?>} */
+    const ref = useRef(null);
 
     const debug = false;
 
     useEffect(() => {
+        if (!ref.current) {
+            return;
+        }
+
         const ctx = ref.current.getContext("2d");
         const width = ref.current.clientWidth * devicePixelRatio;
         const height = 200 * devicePixelRatio;
@@ -33,14 +38,18 @@ export function ProgressGraph ({ data, color = "#4F4", startTime = NaN, finalVal
         const graphWidth = width - gutterLeft - gutterRight;
         const graphHeight = height - gutterTop - gutterBottom;
 
+        if (!ctx) {
+            return;
+        }
+
         ctx.translate(gutterLeft, gutterTop);
 
         if (!data[1]) {
-            return null;
+            return;
         }
 
         if (data[1].length === 0) {
-            return null;
+            return;
         }
 
         let l = data[1].findIndex(y => y === 1);
@@ -124,7 +133,7 @@ export function ProgressGraph ({ data, color = "#4F4", startTime = NaN, finalVal
         const y_px_value = (1 - y_2) * graphHeight;
 
         // Byte percentage completion fill
-        {
+        // #STARTBLOCK
             ctx.beginPath();
             ctx.rect(0, y_px_value, graphWidth, graphHeight - y_px_value);
             ctx.fillStyle = color;
@@ -169,7 +178,7 @@ export function ProgressGraph ({ data, color = "#4F4", startTime = NaN, finalVal
 
                 ctx.setLineDash([]);
             }
-        }
+        // #ENDBLOCK
 
         // Time percentage completion
         if (x_end < Infinity)
@@ -245,7 +254,7 @@ export function ProgressGraph ({ data, color = "#4F4", startTime = NaN, finalVal
         }
 
         // Recorded data
-        {
+        // #STARTBLOCK
             // Dashed line to start of recording
             ctx.beginPath();
             ctx.moveTo(0, graphHeight);
@@ -276,7 +285,7 @@ export function ProgressGraph ({ data, color = "#4F4", startTime = NaN, finalVal
                 ctx.fillStyle = color;
                 ctx.fill();
             }
-        }
+        // #ENDBLOCK
 
         // Border black
         ctx.beginPath();
@@ -312,7 +321,7 @@ export function ProgressGraph ({ data, color = "#4F4", startTime = NaN, finalVal
 
         ctx.resetTransform();
 
-    }, [data]);
+    }, [data,color, debug, finalValueLabel, startTime]);
 
     return <canvas ref={ref} />
 }

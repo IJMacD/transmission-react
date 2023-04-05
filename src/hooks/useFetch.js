@@ -2,11 +2,12 @@ import { useState, useEffect } from 'react';
 
 /**
  * @param {string} url
+ * @returns {[ any, boolean, Error|null ]}
  */
 export function useFetch (url) {
-    const [ data, setData ] = useState(null);
+    const [ data, setData ] = useState(/** @type {any?} */(null));
     const [ loading, setLoading ] = useState(true);
-    const [ error, setError ] = useState(null);
+    const [ error, setError ] = useState(/** @type {Error?} */(null));
 
     useEffect(() => {
         let current = true;

@@ -1,4 +1,4 @@
-interface Torrent {
+export interface Torrent {
     activityDate: number; // 1653403894,
     addedDate: number; // 1653403317,
     bandwidthPriority: number; // 0,
@@ -82,4 +82,13 @@ interface TorrentFile {
 interface FileSystemMapping {
     base: string;
     path: string;
+}
+
+interface SearchResult {
+    name: string;
+    link: string;
+    magnet: string;
+    size: number;
+    seeds: number;
+    leeches: number;
 }

@@ -1,3 +1,4 @@
+import React from "react";
 import { useRef, useEffect } from "react";
 
 export function PeerStats ({ torrents }) {
@@ -10,15 +11,15 @@ export function PeerStats ({ torrents }) {
 
     return (
         <div>
-            <p>Share: {ipv6Peers.length} IPv6 / {ipv4Peers.length} IPv4</p>
+            <p>Ratio: {ipv6Peers.length} IPv6 / {ipv4Peers.length} IPv4</p>
             <ul>
                 {
-                    ipv6Peers.map(p => <li key={p.address}>[{p.address}]:{p.port} - {p.torrents.length} torrents</li>)
+                    ipv6Peers.map(p => <li key={p.address}>[{p.address}]:{p.port} - {p.torrents.length} { _n(p.torrents.length, "torrent") }</li>)
                 }
             </ul>
             <ul>
                 {
-                    ipv4Peers.map(p => <li key={p.address}>[{p.address}]:{p.port} - {p.torrents.length} torrents ({p.torrents.map(t => t.name).join(", ")})</li>)
+                    ipv4Peers.map(p => <li key={p.address}>[{p.address}]:{p.port} - {p.torrents.length} { _n(p.torrents.length, "torrent") } ({p.torrents.map(t => t.name).join(", ")})</li>)
                 }
             </ul>
             <IPv4Map peers={ipv4Peers} />
@@ -27,8 +28,8 @@ export function PeerStats ({ torrents }) {
 }
 
 function IPv4Map ({ peers }) {
-    /** @type {import("react").MutableRefObject<HTMLCanvasElement>} */
-    const ref = useRef();
+    /** @type {import("react").MutableRefObject<HTMLCanvasElement?>} */
+    const ref = useRef(null);
 
     const width = 1024;
     const height = 1024;
@@ -40,6 +41,10 @@ function IPv4Map ({ peers }) {
             const pixelHeight = height * devicePixelRatio;
 
             const ctx = ref.current.getContext("2d");
+
+            if (!ctx) {
+                return;
+            }
 
             ctx.globalAlpha = 0.5;
 
@@ -85,9 +90,9 @@ function IPv4Map ({ peers }) {
 /**
  * Mark a /8 octet as reserved
  * @param {CanvasRenderingContext2D} ctx
- * @param {number} octet
- * @param {number} dX
- * @param {number} dY
+ * @param {number[]} octets
+ * @param {number} width
+ * @param {number} height
  */
 function markReserved (ctx, octets, width, height) {
     const [x, y, w, h] = ipv4Block2Area(octets, width, height);
@@ -105,6 +110,11 @@ function markReserved (ctx, octets, width, height) {
     ctx.stroke();
 }
 
+/**
+ * @param {number[]} octets
+ * @param {number} width
+ * @param {number} height
+ */
 function ipv4Block2Area (octets, width, height) {
     let x = 0;
     let y = 0;
@@ -146,10 +156,6 @@ function getPeers(torrents) {
     return [...map.values()];
 }
 
-function getPeersSimple (torrents) {
-    return [].concat(...torrents.map(t => t.peers));
-}
-
 /**
  *
  * @param {string} address
@@ -166,8 +172,20 @@ function isIPv6 (address) {
     return address.indexOf(":") !== -1;
 }
 
+/**
+ * @param {string} address
+ */
 function parseIPv4 (address) {
     const octets = address.split(".").map(s => parseInt(s, 10));
 
     return (octets[0] * Math.pow(2,24)) + (octets[1] << 16) + (octets[2] << 8) + octets[3];
+}
+
+/**
+ * @param {number} n
+ * @param {string} term
+ * @param {string} plural
+ */
+function _n (n, term, plural = `${term}s`) {
+    return n === 1 ? term : plural;
 }

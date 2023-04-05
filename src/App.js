@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import './App.css';
-import { formatBytesPerSecond, sortBy } from './util';
+import { formatBytesPerSecond, isActive, sortBy } from './util';
 import Transmission from "./Transmission";
 import { Graph } from './Components/Graph';
 import { TorrentTable } from './Components/TorrentTable';
@@ -16,9 +16,11 @@ import { RSSFeedPage } from './Pages/RSSFeedPage';
 
 const NO_TORRENT = -1;
 
+/** @typedef {import('..').Torrent} Torrent */
+/** @typedef {import('..').FileSystemMapping} FileSystemMapping */
+
 function App() {
-  /** @type {[ Torrent[], import('react').Dispatch<import('react').SetStateAction<Torrent[]>> ]} */
-  const [torrents, setTorrents] = useState([]);
+  const [torrents, setTorrents] = useState(/** @type {Torrent[]} */([]));
   const tmRef = useRef(new Transmission(process.env.REACT_APP_API_ROOT));
   const [ data, pushData ] = useDataLog();
   const [ selectedTorrent, setSelectedTorrent ] = useState(NO_TORRENT);
@@ -32,6 +34,7 @@ function App() {
   const [ pathMappings, setPathMappings ] = useSavedState("TRANSMISSION_PATH_MAPPINGS", /** @type {FileSystemMapping[]} */([]));
   const [ rssFeed, setRSSFeed ] = useState("https://");
   const [ sessionData, setSessionData ] = useState({});
+  const [ selectedFilter, setSelectedFilter ] = useState("all");
 
   useEffect(() => {
     const run = () => {
@@ -141,104 +144,124 @@ function App() {
   const totalDown = activeTorrents.reduce((total,torrent) => total + torrent.rateDownload, 0);
   const totalUp = activeTorrents.reduce((total,torrent) => total + torrent.rateUpload, 0);
 
+  const filters = ["all","downloading","uploading","unfinished","finished"];
+
+  function setSelected (page, filter, torrentID) {
+    if (page) {
+      setPage(page);
+    }
+    else {
+      setPage("torrents");
+
+      if (filter) {
+        setSelectedTorrent(NO_TORRENT);
+        setSelectedFilter(filter);
+      }
+      else {
+        setSelectedTorrent(torrentID);
+        setSelectedFilter("");
+      }
+    }
+  }
+
   return (
     <div className="App">
-      <p>
-        ⬇️ {formatBytesPerSecond(totalDown)} (Avg: {formatBytesPerSecond(downloadAverage.current)}, Max: {formatBytesPerSecond(downloadMax)}){' '}
-        ⬆️ {formatBytesPerSecond(totalUp)} (Avg: {formatBytesPerSecond(uploadAverage.current)}, Max: {formatBytesPerSecond(uploadMax)}){' '}
-        <label>Alt Speed: <input type="checkbox" checked={sessionData['alt-speed-enabled']||false} onChange={e => setAltSpeedEnabled(e.target.checked)} /></label>
-      </p>
-      <button onClick={() => { setPage("torrents"); setSelectedTorrent(NO_TORRENT); }} disabled={page === "torrents" && selectedTorrent === NO_TORRENT}>Torrents</button>
-      {
-        openTorrentTabs.map(id => {
-          const name = getTorrent(id)?.name || id;
-          const active = page === "torrents" && selectedTorrent === id;
-          return (
-            <button
-              key={id}
-              onClick={() => { setPage("torrents"); setSelectedTorrent(id); }}
-              disabled={active}
-              className="TorrentTabButton"
-            >
-              {name}
-            </button>
-          );
-        })
-      }
-      <button onClick={() => setPage("peers")} disabled={page === "peers"}>Peers</button>
-      <button onClick={() => setPage("search")} disabled={page === "search"}>Search</button>
-      <button onClick={() => setPage("mappings")} disabled={page === "mappings"}>Mappings</button>
-      <button onClick={handleAddLink}>Add Magnet</button>
-      <button onClick={handleAddRSS}>Load RSS</button>
-      { page === "torrents" && selectedTorrent === NO_TORRENT && <Graph data={data} options={graphOptions} /> }
-      {
-        page === "peers" &&
-        <div>
-          <h1>Peers</h1>
-          <PeerStats torrents={torrents} />
-        </div>
-      }
-      {
-        page === "mappings" &&
-        <MappingsPage mappings={pathMappings} setMappings={setPathMappings} />
-      }
-      {
-        page === "rss" &&
-        <div>
-          <button onClick={() => setPage("torrents")}>Close</button>
-          <RSSFeedPage feed={rssFeed} transmission={tmRef.current} />
-        </div>
-      }
-      {
-        openTorrentTabs.map(id => {
-          return <div key={id} style={{ display: page === "torrents" && selectedTorrent === id ? "block" : "none" }}>
-            <button onClick={() => closeTorrent(id)}>Close</button>
-            <TorrentDetails torrent={getTorrent(id, true)} transmission={tmRef.current} pathMappings={pathMappings} />
+      <div className='App-Sidebar'>
+        <ul>
+          {
+            filters.map(f => <li key={f} className={page==="torrents"&&selectedTorrent===NO_TORRENT&&f===selectedFilter?"selected":""} onClick={()=>setSelected(null, f)}>{f}</li>)
+          }
+          {
+            openTorrentTabs.map(id => {
+              const name = getTorrent(id)?.name || id;
+              const active = page === "torrents" && selectedTorrent === id;
+              return (
+                <li key={id} className={active?"selected":""}>
+                  <div
+                    onClick={() => { setPage("torrents"); setSelected(null, null, id); }}
+                    className="TorrentTabButton"
+                  >
+                    {name}
+                  </div>
+                  <button onClick={() => closeTorrent(id)}>❌</button>
+                </li>
+              );
+            })
+          }
+          <li onClick={() => setPage("peers")} className={page === "peers"?"selected":""}>Peers</li>
+          <li onClick={() => setPage("search")} className={page === "search"?"selected":""}>Search</li>
+          <li onClick={() => setPage("mappings")} className={page === "mappings"?"selected":""}>Mappings</li>
+          <li><button onClick={handleAddLink}>Add Magnet</button></li>
+          <li><button onClick={handleAddRSS}>Load RSS</button></li>
+        </ul>
+      </div>
+      <div className='App-Main'>
+        <p className='App-StatusBar'>
+          ⬇️ {formatBytesPerSecond(totalDown)} (Avg: {formatBytesPerSecond(downloadAverage.current)}, Max: {formatBytesPerSecond(downloadMax)}){' '}
+          ⬆️ {formatBytesPerSecond(totalUp)} (Avg: {formatBytesPerSecond(uploadAverage.current)}, Max: {formatBytesPerSecond(uploadMax)}){' '}
+          <label>Alt Speed: <input type="checkbox" checked={sessionData['alt-speed-enabled']||false} onChange={e => setAltSpeedEnabled(e.target.checked)} /></label>
+        </p>
+        { page === "torrents" && selectedTorrent === NO_TORRENT && <Graph data={data} options={graphOptions} /> }
+        {
+          page === "peers" &&
+          <div>
+            <h1>Peers</h1>
+            <PeerStats torrents={torrents} />
           </div>
-        })
-      }
-      { page === "torrents" && selectedTorrent === NO_TORRENT &&
-        <div>
-          <h1>{torrents.length} torrents</h1>
-          { downloadingTorrents.length > 0 &&
-            <>
-              <h2>Downloading ({downloadingTorrents.length})</h2>
-              <TorrentTable torrents={sortBy(downloadingTorrents, "percentDone", true)} onTorrentClick={selectTorrent} downloadMode={true} />
-            </>
-          }
-          { uploadingTorrents.length > 0 &&
-            <>
-              <h2>Uploading ({uploadingTorrents.length})</h2>
-              <TorrentTable torrents={sortBy(uploadingTorrents, "uploadRatio", true)} onTorrentClick={selectTorrent} onStopClick={id => tmRef.current.stopTorrent(id)} />
-            </>
-          }
-          {/*
-          <h2>Recently Finished ({recentlyFinishedTorrents.length})</h2>
-          <TorrentList torrents={sortBy(recentlyFinishedTorrents, "doneDate", true)} onTorrentClick={selectTorrent} />
-          */}
-          <h2>Unfinished ({unfinishedTorrents.length})</h2>
-          <TorrentList torrents={sortBy(unfinishedTorrents, "percentDone", true)} onTorrentClick={selectTorrent} />
-          <h2>Finished ({finishedTorrents.length})</h2>
-          <TorrentTreeList torrents={sortBy(finishedTorrents, "name")} onTorrentClick={selectTorrent} onStartClick={id => tmRef.current.startTorrent(id)} />
-        </div>
-      }
-      { page === "search" &&
-        <div>
-          <h1>Search</h1>
-          <SearchPage transmission={tmRef.current} />
-        </div>
-      }
+        }
+        {
+          page === "mappings" &&
+          <MappingsPage mappings={pathMappings} setMappings={setPathMappings} />
+        }
+        {
+          page === "rss" &&
+          <div>
+            <button onClick={() => setPage("torrents")}>Close</button>
+            <RSSFeedPage feed={rssFeed} transmission={tmRef.current} />
+          </div>
+        }
+        {
+          openTorrentTabs.map(id => {
+            return <div key={id} style={{ display: page === "torrents" && selectedTorrent === id ? "block" : "none" }}>
+              <TorrentDetails torrent={getTorrent(id, true)} transmission={tmRef.current} pathMappings={pathMappings} />
+            </div>
+          })
+        }
+        { page === "torrents" && selectedTorrent === NO_TORRENT &&
+          <div>
+            <h1>{torrents.length} torrents</h1>
+            { downloadingTorrents.length > 0 &&
+              <>
+                <h2>Downloading ({downloadingTorrents.length})</h2>
+                <TorrentTable torrents={sortBy(downloadingTorrents, "percentDone", true)} onTorrentClick={selectTorrent} downloadMode={true} />
+              </>
+            }
+            { uploadingTorrents.length > 0 &&
+              <>
+                <h2>Uploading ({uploadingTorrents.length})</h2>
+                <TorrentTable torrents={sortBy(uploadingTorrents, "uploadRatio", true)} onTorrentClick={selectTorrent} onStopClick={id => tmRef.current.stopTorrent(id)} />
+              </>
+            }
+            {/*
+            <h2>Recently Finished ({recentlyFinishedTorrents.length})</h2>
+            <TorrentList torrents={sortBy(recentlyFinishedTorrents, "doneDate", true)} onTorrentClick={selectTorrent} />
+            */}
+            <h2>Unfinished ({unfinishedTorrents.length})</h2>
+            <TorrentList torrents={sortBy(unfinishedTorrents, "percentDone", true)} onTorrentClick={selectTorrent} />
+            <h2>Finished ({finishedTorrents.length})</h2>
+            <TorrentTreeList torrents={sortBy(finishedTorrents, "name")} onTorrentClick={selectTorrent} onStartClick={id => tmRef.current.startTorrent(id)} />
+          </div>
+        }
+        { page === "search" &&
+          <div>
+            <h1>Search</h1>
+            <SearchPage transmission={tmRef.current} />
+          </div>
+        }
+      </div>
     </div>
   );
 }
 
 export default App;
 
-
-function isActive (torrent) {
-  return torrent.rateDownload > 0 || torrent.rateUpload > 0;
-}
-
-function isRecentlyFinished (torrent) {
-  return Date.now() - (torrent.doneDate * 1000) < (7 * 24 * 60 * 60 * 1000);
-}

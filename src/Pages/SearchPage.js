@@ -1,18 +1,20 @@
 import { useState } from "react"
-import Transmission from "../Transmission";
+import React from "react";
 
 const SEARCH_ROOT = "//" + (window.location.hostname === "localhost" ? "nas.home.ijmacd.com" : window.location.hostname) + "/magnet_search.php";
 
+/** @typedef {import('../..').SearchResult} SearchResult */
+
 /**
  *
- * @param {object} param0
- * @param {Transmission} param0.transmission
+ * @param {object} props
+ * @param {import('../Transmission').default} props.transmission
  */
 export default function SearchPage ({ transmission }) {
     const [ searchTerm, setSearchTerm ] = useState("");
-    const [ results, setResults ] = useState([]);
+    const [ results, setResults ] = useState(/** @type {SearchResult[]} */([]));
     const [ fetching, setFetching ] = useState(false);
-    const [ error, setError ] = useState(null);
+    const [ error, setError ] = useState(/** @type {Error?} */(null));
 
     /**
      * @param {React.FormEvent<HTMLFormElement>} e
@@ -42,7 +44,7 @@ export default function SearchPage ({ transmission }) {
     }
 
     return (
-        <div>
+        <div className="SearchPage" style={{padding: "1em"}}>
             <form className="SearchForm" onSubmit={handleSubmit}>
                 <input
                     value={searchTerm}
@@ -53,6 +55,7 @@ export default function SearchPage ({ transmission }) {
                 />
                 <button disabled={fetching}>Search</button>
             </form>
+            { error && <p>{error.message}</p> }
             <table>
 				<thead>
 					<tr>

@@ -50,3 +50,11 @@ export function formatDuration (seconds, fractionalSeconds = false) {
 export function countSeeds(torrent) {
   return Math.max(0, ...torrent.trackerStats.map(s => s.seederCount));
 }
+
+export function isActive (torrent) {
+  return torrent.rateDownload > 0 || torrent.rateUpload > 0;
+}
+
+export function isRecentlyFinished (torrent) {
+  return Date.now() - (torrent.doneDate * 1000) < (7 * 24 * 60 * 60 * 1000);
+}

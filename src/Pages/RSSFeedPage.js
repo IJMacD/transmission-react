@@ -1,10 +1,10 @@
-import Transmission from '../Transmission';
+import React from 'react';
 import { useFetch } from '../hooks/useFetch';
 
 /**
  * @param {object} props
  * @param {string} props.feed
- * @param {Transmission} props.transmission
+ * @param {import('../Transmission').default} props.transmission
  */
 export function RSSFeedPage ({ feed, transmission }) {
     const [ data, loading, error ] = useFetch(feed);
@@ -15,9 +15,9 @@ export function RSSFeedPage ({ feed, transmission }) {
         const doc = new DOMParser().parseFromString(data, "application/xml");
 
         items = [...doc.querySelectorAll("item")].map(item => {
-            const id = item.querySelector("guid").textContent;
-            const title = item.querySelector("title").textContent;
-            const link = item.querySelector("link").textContent;
+            const id = item.querySelector("guid")?.textContent;
+            const title = item.querySelector("title")?.textContent;
+            const link = item.querySelector("link")?.textContent || void 0;
 
             return { id, title, link };
         })
@@ -40,7 +40,7 @@ export function RSSFeedPage ({ feed, transmission }) {
                                         <a href={item.link}>
                                             {item.title}
                                         </a>{' '}
-                                        <button onClick={() => transmission.addLink(item.link)}>Add</button>
+                                        <button onClick={() => item.link && transmission.addLink(item.link)}>Add</button>
                                     </li>
                                 );
                             })
