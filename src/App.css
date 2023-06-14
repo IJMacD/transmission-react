@@ -1,12 +1,14 @@
-.App {
-  display: flex;
-  min-height: 100vh;
-}
+@media (min-width: 768px) {
+  .App {
+    display: flex;
+    min-height: 100vh;
+  }
 
-.App-Sidebar {
-  flex: 0 0 320px;
-  border-right: 1px solid #666;
-  max-width: 320px;
+  .App-Sidebar {
+    flex: 0 0 320px;
+    border-right: 1px solid #666;
+    max-width: 320px;
+  }
 }
 
 .App-Sidebar ul {
@@ -30,6 +32,7 @@
 
 .App-Main {
   flex: 1;
+  padding: 1em 1em 2em;
 }
 
 .App-StatusBar {
@@ -143,6 +146,7 @@ dd > .TreeItem {
 
 .SearchForm {
   display: flex;
+  margin-bottom: 0.5em;
 }
 
 .SearchBox {
@@ -150,7 +154,14 @@ dd > .TreeItem {
   font-size: 22pt;
   padding: 4px 8px;
   border: 1px solid #00000080;
-  border-radius: 5px;
+  border-radius: 5px 0 0 5px;
+  min-width: 80px;
+}
+
+.SearchButton {
+  border: 1px solid #00000080;
+  border-radius: 0 5px 5px 0;
+  border-left-width: 0;
 }
 
 .TorrentTabButton {

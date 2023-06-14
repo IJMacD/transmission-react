@@ -21,6 +21,7 @@ export default function SearchPage ({ transmission }) {
      */
     function handleSubmit (e) {
         e.preventDefault();
+        setError(null);
 
         fetch(`${SEARCH_ROOT}?search=${searchTerm}`)
             .then(r => r.json())
@@ -44,7 +45,7 @@ export default function SearchPage ({ transmission }) {
     }
 
     return (
-        <div className="SearchPage" style={{padding: "1em"}}>
+        <div className="SearchPage">
             <form className="SearchForm" onSubmit={handleSubmit}>
                 <input
                     value={searchTerm}
@@ -53,7 +54,7 @@ export default function SearchPage ({ transmission }) {
                     className="SearchBox"
                     disabled={fetching}
                 />
-                <button disabled={fetching}>Search</button>
+                <button className="SearchButton" disabled={fetching}>Search</button>
             </form>
             { error && <p>{error.message}</p> }
             <table>

@@ -199,7 +199,7 @@ function App() {
         <p className='App-StatusBar'>
           ⬇️ {formatBytesPerSecond(totalDown)} (Avg: {formatBytesPerSecond(downloadAverage.current)}, Max: {formatBytesPerSecond(downloadMax)}){' '}
           ⬆️ {formatBytesPerSecond(totalUp)} (Avg: {formatBytesPerSecond(uploadAverage.current)}, Max: {formatBytesPerSecond(uploadMax)}){' '}
-          <label>Alt Speed: <input type="checkbox" checked={sessionData['alt-speed-enabled']||false} onChange={e => setAltSpeedEnabled(e.target.checked)} /></label>
+          <label style={{display:"inline-block"}}>Alt Speed: <input type="checkbox" checked={sessionData['alt-speed-enabled']||false} onChange={e => setAltSpeedEnabled(e.target.checked)} /></label>
         </p>
         { page === "torrents" && selectedTorrent === NO_TORRENT && <Graph data={data} options={graphOptions} /> }
         {
