@@ -331,6 +331,57 @@ dd > .TreeItem {
   gap: 1rem;
 }
 
+.TorrentDetails-Tabs {
+  display: inline-flex;
+  gap: 0.4rem;
+  padding: 0.35rem;
+  border-radius: 999px;
+  background: #edf4fc;
+  border: 1px solid #dbe7f5;
+  width: fit-content;
+}
+
+.TorrentDetails-Tab {
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: #56708e;
+  box-shadow: none;
+  padding: 0.6rem 1rem;
+  font-size: 0.92rem;
+}
+
+.TorrentDetails-Tab:hover {
+  background: rgba(255, 255, 255, 0.7);
+  box-shadow: none;
+  transform: none;
+}
+
+.TorrentDetails-Tab--active {
+  background: white;
+  color: #1f4d8f;
+  box-shadow: 0 6px 16px rgba(30, 64, 175, 0.12);
+}
+
+.TorrentDetails-TabCount {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.5rem;
+  height: 1.5rem;
+  padding: 0 0.4rem;
+  margin-left: 0.35rem;
+  border-radius: 999px;
+  background: #dbeafe;
+  color: #1d4ed8;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.TorrentDetails-Content {
+  display: grid;
+  gap: 1rem;
+}
 .TorrentDetails-Header {
   display: flex;
   align-items: flex-start;
@@ -341,6 +392,14 @@ dd > .TreeItem {
   background: linear-gradient(135deg, #ffffff 0%, #f7fbff 100%);
   border: 1px solid #e7edf5;
   box-shadow: 0 6px 20px rgba(16, 24, 40, 0.06);
+  position: sticky;
+    top: 1rem;
+    z-index: 20;
+    backdrop-filter: blur(10px);
+  }
+  
+  .TorrentDetails-HeaderMain {
+    min-width: 0;
 }
 
 .TorrentDetails-Title {
@@ -371,14 +430,28 @@ dd > .TreeItem {
   box-shadow: 0 6px 12px rgba(59, 130, 246, 0.18);
 }
 
-.TorrentDetails-LiveStats {
+.TorrentDetails-TitlePercent {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #7b8794;
+  background: #f5f7fa;
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  padding: 0.2rem 0.5rem;
+}
+
+.TorrentDetails-HeaderStats {
+  align-self: center;
   margin: 0;
-  padding: 0.85rem 1rem;
-  border-radius: 10px;
+  padding: 0.45rem 0.75rem;
+    border-radius: 999px;
   background: #f0f7ff;
   border: 1px solid #d7e8fb;
-  color: #1e3a5f;
+  color: #4b6480;
   font-weight: 600;
+  font-size: 0.82rem;
+    line-height: 1.3;
+    white-space: nowrap;
 }
 
 .TorrentDetails-GraphPanel {
@@ -474,6 +547,96 @@ dd > .TreeItem {
   box-shadow: 0 3px 10px rgba(16, 24, 40, 0.05);
 }
 
+.TorrentDetails-TrackerSummary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.TorrentDetails-TrackerSummary>div {
+  padding: 0.9rem 1rem;
+  border-radius: 10px;
+  background: #f8fbff;
+  border: 1px solid #e7edf5;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.TorrentDetails-TrackerSummary span {
+  font-size: 0.82rem;
+  color: #5b6f88;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.TorrentDetails-TrackerSummary strong {
+  font-size: 1.3rem;
+  color: #162235;
+}
+
+.TorrentDetails-PeerSummary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.TorrentDetails-PeerSummary>div {
+  padding: 0.9rem 1rem;
+  border-radius: 10px;
+  background: #f8fbff;
+  border: 1px solid #e7edf5;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.TorrentDetails-PeerSummary span {
+  font-size: 0.82rem;
+  color: #5b6f88;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.TorrentDetails-PeerSummary strong {
+  font-size: 1.3rem;
+  color: #162235;
+}
+
+.TorrentDetails-PeerTable {
+  min-width: 1200px;
+}
+
+.TorrentDetails-TrackerTableWrap {
+  overflow-x: auto;
+  border-radius: 12px;
+  border: 1px solid #e7edf5;
+  box-shadow: 0 3px 10px rgba(16, 24, 40, 0.05);
+  background: #ffffff;
+}
+
+.TorrentDetails-TrackerTable {
+  margin-bottom: 0;
+  min-width: 920px;
+}
+
+.TorrentDetails-TrackerTable th,
+.TorrentDetails-TrackerTable td {
+  padding: 0.85rem 0.9rem;
+  vertical-align: top;
+}
+
+.TorrentDetails-TrackerTable td {
+  cursor: default;
+}
+
+.TorrentDetails-TrackerTable tbody tr:hover td {
+  background-color: #f8fbff;
+}
+
+.TorrentDetails-TrackerEmpty {
+  text-align: center;
+  color: #5b6f88;
+  padding: 1.25rem 1rem;
+}
 @media (max-width: 900px) {
   .TorrentDetails-StatsList {
     grid-template-columns: 1fr;
@@ -491,4 +654,11 @@ dd > .TreeItem {
   .TorrentDetails-Header {
     padding: 0.9rem 1rem;
   }
+.TorrentDetails-TrackerSummary {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.TorrentDetails-PeerSummary {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
 }
