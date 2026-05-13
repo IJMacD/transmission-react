@@ -21,7 +21,7 @@ const NO_TORRENT = -1;
 
 function App() {
   const [torrents, setTorrents] = useState(/** @type {Torrent[]} */([]));
-  const tmRef = useRef(new Transmission(process.env.REACT_APP_API_ROOT));
+  const tmRef = useRef(new Transmission(import.meta.env.VITE_API_ROOT));
   const [ data, pushData ] = useDataLog();
   const [ selectedTorrent, setSelectedTorrent ] = useState(NO_TORRENT);
   const [ openTorrentTabs, setOpenTorrentTabs ] = useState(/** @type {number[]} */([]));
