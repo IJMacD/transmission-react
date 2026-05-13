@@ -146,6 +146,33 @@ function App() {
 
   const filters = ["all","downloading","uploading","unfinished","finished"];
 
+  const visibleTorrents = selectedFilter === "all"
+    ? torrents
+    : torrents.filter(torrent => {
+        if (selectedFilter === "downloading") {
+          return torrent.status === Transmission.STATUS_DOWNLOAD || torrent.status === Transmission.STATUS_DOWNLOAD_WAIT;
+        }
+
+        if (selectedFilter === "uploading") {
+          return torrent.status === Transmission.STATUS_SEED || torrent.status === Transmission.STATUS_SEED_WAIT;
+        }
+
+        if (selectedFilter === "unfinished") {
+          return torrent.percentDone !== 1;
+        }
+
+        if (selectedFilter === "finished") {
+          return torrent.percentDone === 1;
+        }
+
+        return true;
+      });
+
+  const visibleDownloadingTorrents = visibleTorrents.filter(t => t.status === Transmission.STATUS_DOWNLOAD || t.status === Transmission.STATUS_DOWNLOAD_WAIT);
+  const visibleUploadingTorrents = visibleTorrents.filter(t => t.status === Transmission.STATUS_SEED || t.status === Transmission.STATUS_SEED_WAIT);
+  const visibleUnfinishedTorrents = visibleTorrents.filter(t => t.percentDone !== 1);
+  const visibleFinishedTorrents = visibleTorrents.filter(t => t.percentDone === 1);
+
   function setSelected (page, filter, torrentID) {
     if (page) {
       setPage(page);
@@ -229,27 +256,35 @@ function App() {
         }
         { page === "torrents" && selectedTorrent === NO_TORRENT &&
           <div>
-            <h1>{torrents.length} torrents</h1>
-            { downloadingTorrents.length > 0 &&
+            <h1>{visibleTorrents.length} torrents</h1>
+            { visibleDownloadingTorrents.length > 0 &&
               <>
-                <h2>Downloading ({downloadingTorrents.length})</h2>
-                <TorrentTable torrents={sortBy(downloadingTorrents, "percentDone", true)} onTorrentClick={selectTorrent} downloadMode={true} />
+                <h2>Downloading ({visibleDownloadingTorrents.length})</h2>
+                <TorrentTable torrents={sortBy(visibleDownloadingTorrents, "percentDone", true)} onTorrentClick={selectTorrent} downloadMode={true} />
               </>
             }
-            { uploadingTorrents.length > 0 &&
+            { visibleUploadingTorrents.length > 0 &&
               <>
-                <h2>Uploading ({uploadingTorrents.length})</h2>
-                <TorrentTable torrents={sortBy(uploadingTorrents, "uploadRatio", true)} onTorrentClick={selectTorrent} onStopClick={id => tmRef.current.stopTorrent(id)} />
+                <h2>Uploading ({visibleUploadingTorrents.length})</h2>
+                <TorrentTable torrents={sortBy(visibleUploadingTorrents, "uploadRatio", true)} onTorrentClick={selectTorrent} onStopClick={id => tmRef.current.stopTorrent(id)} />
               </>
             }
             {/*
             <h2>Recently Finished ({recentlyFinishedTorrents.length})</h2>
             <TorrentList torrents={sortBy(recentlyFinishedTorrents, "doneDate", true)} onTorrentClick={selectTorrent} />
             */}
-            <h2>Unfinished ({unfinishedTorrents.length})</h2>
-            <TorrentList torrents={sortBy(unfinishedTorrents, "percentDone", true)} onTorrentClick={selectTorrent} />
-            <h2>Finished ({finishedTorrents.length})</h2>
-            <TorrentTreeList torrents={sortBy(finishedTorrents, "name")} onTorrentClick={selectTorrent} onStartClick={id => tmRef.current.startTorrent(id)} />
+            { visibleUnfinishedTorrents.length > 0 &&
+              <>
+                <h2>Unfinished ({visibleUnfinishedTorrents.length})</h2>
+                <TorrentList torrents={sortBy(visibleUnfinishedTorrents, "percentDone", true)} onTorrentClick={selectTorrent} />
+              </>
+            }
+            { visibleFinishedTorrents.length > 0 &&
+              <>
+                <h2>Finished ({visibleFinishedTorrents.length})</h2>
+                <TorrentTreeList torrents={sortBy(visibleFinishedTorrents, "name")} onTorrentClick={selectTorrent} onStartClick={id => tmRef.current.startTorrent(id)} />
+              </>
+            }
           </div>
         }
         { page === "search" &&
