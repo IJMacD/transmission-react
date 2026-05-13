@@ -1,3 +1,16 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #f8f9fa;
+  color: #1a1a1a;
+}
 @media (min-width: 768px) {
   .App {
     display: flex;
@@ -5,34 +18,52 @@
   }
 
   .App-Sidebar {
-    flex: 0 0 320px;
-    border-right: 1px solid #666;
-    max-width: 320px;
+    flex: 0 0 280px;
+      border-right: 1px solid #e0e0e0;
+      background: white;
+      box-shadow: 2px 0 8px rgba(0, 0, 0, 0.04);
+      max-width: 280px;
+      overflow-y: auto;
   }
 }
 
 .App-Sidebar ul {
   padding: 0;
+  margin: 0;
+    list-style: none;
 }
 
 .App-Sidebar li {
-  padding: 0.2em 0.5em;
-  border-bottom: 1px solid #CCC;
+  padding: 0.75rem 1rem;
+    border-bottom: 1px solid #f0f0f0;
   display: flex;
   cursor: pointer;
+  transition: all 0.2s ease;
+    font-size: 0.95rem;
+    color: #555;
+    align-items: stretch;
 }
 
 .App-Sidebar li:hover {
-  background-color: #E9E9E9;
+  background-color: #f5f7fa;
+    color: #000;
+    padding-left: 1.25rem;
 }
 
 .App-Sidebar li.selected {
-  font-weight: bold;
+  font-weight: 600;
+    background: linear-gradient(90deg, #3b82f6 0%, rgba(59, 130, 246, 0.1) 100%);
+    color: white;
+    border-left: 3px solid #3b82f6;
+    padding-left: calc(1rem - 3px);
 }
 
 .App-Main {
   flex: 1;
-  padding: 1em 1em 2em;
+  padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto 4em;
+    width: 100%;
 }
 
 .App-StatusBar {
@@ -41,127 +72,192 @@
   bottom: 0;
   left: 0;
   right: 0;
-  padding: 0.5em 1em;
-  background-color: white;
-  z-index: 1;
-  border-top: 1px solid rgba(0,0,0,0.25);
+  padding: 1rem 2rem;
+    background: white;
+    z-index: 1000;
+    border-top: 1px solid #e0e0e0;
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.06);
 }
 
 canvas {
   width: 100%;
+  border-radius: 8px;
 }
 
 table {
   border-collapse: collapse;
   width: 100%;
+  background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    margin-bottom: 1rem;
 }
 
 th {
-  border: 1px solid rgba(0,0,0,0.2);
-  background-color: #FBFBFB;
-  padding: 2px 4px;
+  border: 1px solid #f0f0f0;
+    background: linear-gradient(135deg, #f5f7fa 0%, #f0f3f7 100%);
+    padding: 1rem;
   text-align: left;
+  font-weight: 600;
+    color: #333;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 td {
-  border: 1px solid rgba(0,0,0,0.2);
-  padding: 2px 4px;
+  border: 1px solid #f0f0f0;
+    padding: 0.875rem 1rem;
   cursor: pointer;
+  transition: background-color 0.15s ease;
+    font-size: 0.95rem;
 }
 
 tr:hover td {
-  background-color: #FFD;
+  background-color: #f8fbff;
 }
 
 .hint {
-  font-size: 0.8em;
-  color: #999;
+  font-size: 0.85rem;
+    color: #888;
+    font-weight: 500;
 }
 
 .torrent-item {
   cursor: pointer;
+  transition: color 0.2s ease;
+  }
+  
+  .torrent-item:hover {
+    color: #3b82f6;
 }
 
 dd > .TreeItem {
-  padding: 0;
+  padding: 0.25rem 0;
   margin: 0;
 }
 
 .PieceMap-Piece {
-  width: 10px;
-  height: 15px;
-  border: 1px solid #888;
+  width: 12px;
+    height: 18px;
+    border-radius: 2px;
+    border: 1px solid #d0d0d0;
   margin: 2px;
+  transition: all 0.15s ease;
 }
 
 .PieceMap-Piece--done {
-  background-color: #88F;
-  border-color: #008;
+  background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+    border-color: #1e40af;
 }
 
 .PieceMap-Piece--new {
-  background-color: #8F8;
-  border-color: #080;
+  background: linear-gradient(135deg, #86efac 0%, #22c55e 100%);
+    border-color: #15803d;
 }
 
 .PieceMap-Piece--highlight {
-  outline: 2px solid yellow;
+  outline: 2px solid #fbbf24;
+    outline-offset: 1px;
 }
 
 .PeerIcons {
   display: flex;
+  gap: 0.5rem;
+    flex-wrap: wrap;
 }
 
 .PeerIcons-Icon {
-  width: 16px;
-  height: 16px;
+  width: 20px;
+    height: 20px;
   border-radius: 50%;
-  border: 2px solid rgba(0,0,0,0.3);
-  margin: 2px;
+  border: 2px solid rgba(0, 0, 0, 0.15);
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.PeerIcons-Icon--seed {}
+.PeerIcons-Icon:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.PeerIcons-Icon--seed {
+  border-style: solid;
+}
 
 .PeerIcons-Icon--peer {
   border-style: dashed;
+  border-color: rgba(0, 0, 0, 0.3);
 }
 
 .PeerIcons-Icon--downloading {
-  background-color: #CFC;
+  background: linear-gradient(135deg, #86efac 0%, #4ade80 100%);
+    border-color: #16a34a;
 }
 
 .PeerIcons-Icon--uploading {
-  background-color: #FCC;
+  background: linear-gradient(135deg, #fca5a5 0%, #f87171 100%);
+    border-color: #dc2626;
 }
 
 .PeerIcons-Icon--downloading.PeerIcons-Icon--uploading {
-  background-image: linear-gradient(to right, #CFC,#CFC 50%,#FCC 50% , #FCC);
-  background-size: 150%;
-  background-position: 50%;
+  background: linear-gradient(135deg, #86efac 0%, #86efac 50%, #fca5a5 50%, #fca5a5 100%);
+    border-color: #16a34a;
 }
 
 .PeerIcons-Icon--stalled {
-  opacity: 0.5;
+  opacity: 0.4;
 }
 
 .SearchForm {
   display: flex;
-  margin-bottom: 0.5em;
+  gap: 0.5rem;
+    margin-bottom: 1.5rem;
 }
 
 .SearchBox {
   flex: 1;
-  font-size: 22pt;
-  padding: 4px 8px;
-  border: 1px solid #00000080;
-  border-radius: 5px 0 0 5px;
-  min-width: 80px;
+  font-size: 1rem;
+    padding: 0.75rem 1rem;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 8px 0 0 8px;
+    min-width: 200px;
+    transition: all 0.2s ease;
+    background: white;
+    color: #1a1a1a;
+  }
+  
+  .SearchBox:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+  
+  .SearchBox::placeholder {
+    color: #aaa;
 }
 
 .SearchButton {
-  border: 1px solid #00000080;
-  border-radius: 0 5px 5px 0;
+  padding: 0.75rem 1.5rem;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 0 8px 8px 0;
   border-left-width: 0;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    font-size: 1rem;
+  }
+  
+  .SearchButton:hover {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  }
+  
+  .SearchButton:active {
+    transform: translateY(1px);
 }
 
 .TorrentTabButton {
@@ -169,4 +265,230 @@ dd > .TreeItem {
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
+  margin-right: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
+  }
+  
+  .TorrentTabCloseButton {
+    background: transparent;
+    border: none;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: color 0.2s ease;
+    padding: 0;
+  }
+  
+  .TorrentTabCloseButton:hover {
+    color: #dc2626;
+    box-shadow: none;
+  }
+  
+  /* Input and button base styles */
+  input[type="text"],
+  input[type="number"],
+  textarea,
+  select {
+    font-family: inherit;
+    padding: 0.75rem;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+  }
+  
+  input[type="text"]:focus,
+  input[type="number"]:focus,
+  textarea:focus,
+  select:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+  
+  button {
+    padding: 0.75rem 1.5rem;
+    border-radius: 6px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.95rem;
+  }
+  
+  button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+  
+  button:active {
+    transform: translateY(0);
+}
+
+.TorrentDetails {
+  display: grid;
+  gap: 1rem;
+}
+
+.TorrentDetails-Header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #ffffff 0%, #f7fbff 100%);
+  border: 1px solid #e7edf5;
+  box-shadow: 0 6px 20px rgba(16, 24, 40, 0.06);
+}
+
+.TorrentDetails-Title {
+  margin: 0;
+  font-size: 1.45rem;
+  line-height: 1.25;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.TorrentDetails-MagnetLink {
+  font-size: 0.9rem;
+  text-decoration: none;
+  border-radius: 999px;
+  background: #eef6ff;
+  border: 1px solid #c8e2ff;
+  width: 1.6rem;
+  height: 1.6rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.TorrentDetails-MagnetLink:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 12px rgba(59, 130, 246, 0.18);
+}
+
+.TorrentDetails-LiveStats {
+  margin: 0;
+  padding: 0.85rem 1rem;
+  border-radius: 10px;
+  background: #f0f7ff;
+  border: 1px solid #d7e8fb;
+  color: #1e3a5f;
+  font-weight: 600;
+}
+
+.TorrentDetails-GraphPanel {
+  background: #ffffff;
+  border: 1px solid #e7edf5;
+  border-radius: 12px;
+  padding: 0.75rem;
+  box-shadow: 0 3px 10px rgba(16, 24, 40, 0.05);
+}
+
+.TorrentDetails-StatsList {
+  display: grid;
+  grid-template-columns: 180px minmax(0, 1fr);
+  margin: 0;
+  border: 1px solid #e7edf5;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #ffffff;
+  box-shadow: 0 3px 10px rgba(16, 24, 40, 0.05);
+}
+
+.TorrentDetails-Label,
+.TorrentDetails-Value {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #f0f3f7;
+}
+
+.TorrentDetails-Label {
+  font-size: 0.84rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #53657d;
+  font-weight: 700;
+  background: #f8fbff;
+}
+
+.TorrentDetails-Value {
+  color: #172235;
+  line-height: 1.45;
+}
+
+.TorrentDetails-StatsList > .TorrentDetails-Label:last-child,
+.TorrentDetails-StatsList > .TorrentDetails-Value:last-child {
+  border-bottom: 0;
+}
+
+.TorrentDetails-Actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.TorrentDetails-ActionButton {
+  padding: 0.4rem 0.75rem;
+  font-size: 0.82rem;
+  line-height: 1.2;
+  border-radius: 999px;
+  border: 1px solid #d8e4f4;
+  background: #f7fbff;
+  color: #2d4f75;
+}
+
+.TorrentDetails-ActionButton:hover {
+  background: #ebf4ff;
+  border-color: #bfdaff;
+  box-shadow: 0 6px 10px rgba(59, 130, 246, 0.12);
+}
+
+.TorrentDetails-ActionButton--danger {
+  border-color: #ffd2d2;
+  background: #fff5f5;
+  color: #9f1d1d;
+}
+
+.TorrentDetails-ActionButton--danger:hover {
+  border-color: #ffb3b3;
+  background: #ffecec;
+  box-shadow: 0 6px 10px rgba(239, 68, 68, 0.15);
+}
+
+.TorrentDetails-FilesPanel {
+  background: #fbfdff;
+}
+
+.TorrentDetails-PieceMapPanel {
+  padding: 0.75rem;
+  background: #ffffff;
+  border: 1px solid #e7edf5;
+  border-radius: 12px;
+  box-shadow: 0 3px 10px rgba(16, 24, 40, 0.05);
+}
+
+@media (max-width: 900px) {
+  .TorrentDetails-StatsList {
+    grid-template-columns: 1fr;
+  }
+
+  .TorrentDetails-Label {
+    border-bottom: 0;
+    padding-bottom: 0.25rem;
+  }
+
+  .TorrentDetails-Value {
+    padding-top: 0.35rem;
+  }
+
+  .TorrentDetails-Header {
+    padding: 0.9rem 1rem;
+  }
 }

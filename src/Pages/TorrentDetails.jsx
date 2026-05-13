@@ -114,26 +114,37 @@ export function TorrentDetails({ torrent, transmission, pathMappings }) {
   const uploadRecordedStats = [ data[0], data[4] ];
 
   return (
-    <div>
-      <h2>{torrent.name} <a href={torrent.magnetLink} style={{fontSize:"0.5em",textDecoration:"none"}}>🧲</a></h2>
+    <div className="TorrentDetails">
+      <div className="TorrentDetails-Header">
+        <h2 className="TorrentDetails-Title">
+          {torrent.name}
+          <a className="TorrentDetails-MagnetLink" href={torrent.magnetLink} title="Open magnet link">🧲</a>
+        </h2>
+      </div>
       {
         torrent.status !== Transmission.STATUS_STOPPED &&
         <>
-          <p>⬇️ {formatBytesPerSecond(torrent.rateDownload)} (Avg: {formatBytesPerSecond(downloadAverage)}) ⬆️ {formatBytesPerSecond(torrent.rateUpload)} (Avg: {formatBytesPerSecond(uploadAverage)})</p>
-          <Graph data={graphData} options={graphOptions} />
+          <p className="TorrentDetails-LiveStats">⬇️ {formatBytesPerSecond(torrent.rateDownload)} (Avg: {formatBytesPerSecond(downloadAverage)}) ⬆️ {formatBytesPerSecond(torrent.rateUpload)} (Avg: {formatBytesPerSecond(uploadAverage)})</p>
+          <div className="TorrentDetails-GraphPanel">
+            <Graph data={graphData} options={graphOptions} />
+          </div>
         </>
       }
       {
         downloadRecordedStats[0].length > 1 &&
-          <ProgressGraph data={downloadRecordedStats} startTime={torrent.addedDate * 1000} finalValueLabel={formatBytes(torrent.sizeWhenDone)} />
+          <div className="TorrentDetails-GraphPanel">
+            <ProgressGraph data={downloadRecordedStats} startTime={torrent.addedDate * 1000} finalValueLabel={formatBytes(torrent.sizeWhenDone)} />
+          </div>
       }
       {
         torrent.status === Transmission.STATUS_SEED && uploadRecordedStats.length > 0 &&
-          <ProgressGraph data={uploadRecordedStats} startTime={torrent.addedDate * 1000} color="#F44" finalValueLabel={formatBytes(torrent.seedRatioLimit * torrent.sizeWhenDone)} />
+          <div className="TorrentDetails-GraphPanel">
+            <ProgressGraph data={uploadRecordedStats} startTime={torrent.addedDate * 1000} color="#F44" finalValueLabel={formatBytes(torrent.seedRatioLimit * torrent.sizeWhenDone)} />
+          </div>
       }
-      <dl>
-        <dt>Status</dt>
-        <dd>
+      <dl className="TorrentDetails-StatsList">
+        <dt className="TorrentDetails-Label">Status</dt>
+        <dd className="TorrentDetails-Value TorrentDetails-Value--status">
           { torrent.status === Transmission.STATUS_STOPPED && "STOPPED" }
           { torrent.status === Transmission.STATUS_CHECK_WAIT && "CHECK_WAIT" }
           { torrent.status === Transmission.STATUS_CHECK && "CHECK" }
@@ -141,99 +152,99 @@ export function TorrentDetails({ torrent, transmission, pathMappings }) {
           { torrent.status === Transmission.STATUS_DOWNLOAD && "DOWNLOAD" }
           { torrent.status === Transmission.STATUS_SEED_WAIT && "SEED_WAIT" }
           { torrent.status === Transmission.STATUS_SEED && "SEED" }
-          {' '}
-          { torrent.status !== Transmission.STATUS_STOPPED && <button onClick={handleStop}>Stop</button> }
-          { torrent.status === Transmission.STATUS_STOPPED && <button onClick={handleStart}>Start</button> }
-          {' '}
-          <button onClick={() => handleRemove()}>Remove</button>{' '}
-          <button onClick={() => window.confirm("Are you sure you want to delete the files on disk?") && handleRemove(true)}>Delete Files</button>
+          <span className="TorrentDetails-Actions">
+            { torrent.status !== Transmission.STATUS_STOPPED && <button className="TorrentDetails-ActionButton" onClick={handleStop}>Stop</button> }
+            { torrent.status === Transmission.STATUS_STOPPED && <button className="TorrentDetails-ActionButton" onClick={handleStart}>Start</button> }
+            <button className="TorrentDetails-ActionButton" onClick={() => handleRemove()}>Remove</button>
+            <button className="TorrentDetails-ActionButton TorrentDetails-ActionButton--danger" onClick={() => window.confirm("Are you sure you want to delete the files on disk?") && handleRemove(true)}>Delete Files</button>
+          </span>
         </dd>
-        <dt>Size</dt>
-        <dd title={`${torrent.sizeWhenDone} bytes`}>{formatBytes(torrent.sizeWhenDone)}</dd>
+        <dt className="TorrentDetails-Label">Size</dt>
+        <dd className="TorrentDetails-Value" title={`${torrent.sizeWhenDone} bytes`}>{formatBytes(torrent.sizeWhenDone)}</dd>
         {torrent.percentDone < 1 &&
           <>
-            <dt>Downloaded</dt>
-            <dd><span title={`${torrent.downloadedEver} bytes`}>{formatBytes(torrent.downloadedEver)}</span> <span className="hint">{(100 * torrent.percentDone).toFixed(1)}%</span> (<span title={`${torrent.leftUntilDone} bytes`}>{formatBytes(torrent.leftUntilDone)} remaining</span> <span className="hint">{(100 * torrent.desiredAvailable / torrent.leftUntilDone).toFixed(1)}% available</span>)</dd>
+            <dt className="TorrentDetails-Label">Downloaded</dt>
+            <dd className="TorrentDetails-Value"><span title={`${torrent.downloadedEver} bytes`}>{formatBytes(torrent.downloadedEver)}</span> <span className="hint">{(100 * torrent.percentDone).toFixed(1)}%</span> (<span title={`${torrent.leftUntilDone} bytes`}>{formatBytes(torrent.leftUntilDone)} remaining</span> <span className="hint">{(100 * torrent.desiredAvailable / torrent.leftUntilDone).toFixed(1)}% available</span>)</dd>
           </>}
-        <dt>Added</dt>
-        <dd>{new Date(torrent.addedDate * 1000).toISOString()}</dd>
+        <dt className="TorrentDetails-Label">Added</dt>
+        <dd className="TorrentDetails-Value">{new Date(torrent.addedDate * 1000).toISOString()}</dd>
         {torrent.doneDate > 0 &&
           <>
-            <dt>Finished</dt>
-            <dd>{new Date(torrent.doneDate * 1000).toISOString()}</dd>
+            <dt className="TorrentDetails-Label">Finished</dt>
+            <dd className="TorrentDetails-Value">{new Date(torrent.doneDate * 1000).toISOString()}</dd>
           </>}
-        <dt>Duration</dt>
-        <dd>{formatDuration(torrent.secondsDownloading)}</dd>
-        <dt>Location</dt>
-        <dd>{torrent.downloadDir} <button onClick={handleMove}>Move</button></dd>
+        <dt className="TorrentDetails-Label">Duration</dt>
+        <dd className="TorrentDetails-Value">{formatDuration(torrent.secondsDownloading)}</dd>
+        <dt className="TorrentDetails-Label">Location</dt>
+        <dd className="TorrentDetails-Value">{torrent.downloadDir} <button className="TorrentDetails-ActionButton" onClick={handleMove}>Move</button></dd>
         {
           torrent.desiredAvailable > 0 && downloadAverage > 0 &&
           <>
-            <dt>ETA</dt>
-            <dd>{new Date(Date.now() + (torrent.desiredAvailable / downloadAverage) * 1000).toISOString()} <span className="hint">in {formatDuration(torrent.desiredAvailable / downloadAverage)}</span></dd>
+            <dt className="TorrentDetails-Label">ETA</dt>
+            <dd className="TorrentDetails-Value">{new Date(Date.now() + (torrent.desiredAvailable / downloadAverage) * 1000).toISOString()} <span className="hint">in {formatDuration(torrent.desiredAvailable / downloadAverage)}</span></dd>
           </>
         }
         {
           torrent.percentDone < 1 &&
           <>
-            <dt>Current Speed</dt>
-            <dd>{formatBytesPerSecond(torrent.rateDownload)}</dd>
+            <dt className="TorrentDetails-Label">Current Speed</dt>
+            <dd className="TorrentDetails-Value">{formatBytesPerSecond(torrent.rateDownload)}</dd>
           </>
         }
-        <dt>Average Speed</dt>
-        <dd>{formatBytesPerSecond(torrent.downloadedEver / torrent.secondsDownloading)}</dd>
+        <dt className="TorrentDetails-Label">Average Speed</dt>
+        <dd className="TorrentDetails-Value">{formatBytesPerSecond(torrent.downloadedEver / torrent.secondsDownloading)}</dd>
         {
         downloadAverage > 0 &&
           <>
-            <dt>Recent Average Speed</dt>
-            <dd>{formatBytesPerSecond(downloadAverage)}</dd>
+            <dt className="TorrentDetails-Label">Recent Average Speed</dt>
+            <dd className="TorrentDetails-Value">{formatBytesPerSecond(downloadAverage)}</dd>
           </>
         }
         {
         torrent.rateUpload > 0 &&
           <>
-            <dt>Upload Speed</dt>
-            <dd>{formatBytesPerSecond(torrent.rateUpload)}</dd>
+            <dt className="TorrentDetails-Label">Upload Speed</dt>
+            <dd className="TorrentDetails-Value">{formatBytesPerSecond(torrent.rateUpload)}</dd>
           </>
         }
         {
         downloadAverage > 0 &&
           <>
-            <dt>Recent Average Upload Speed</dt>
-            <dd>{formatBytesPerSecond(uploadAverage)}</dd>
+            <dt className="TorrentDetails-Label">Recent Average Upload Speed</dt>
+            <dd className="TorrentDetails-Value">{formatBytesPerSecond(uploadAverage)}</dd>
           </>
         }
-        <dt>Uploaded</dt>
-        <dd>
-          {formatBytes(torrent.uploadedEver)} <span className="hint">({torrent.uploadRatio})</span>
-          {torrent.seedRatioLimit > torrent.uploadRatio && <> [{formatBytes(torrent.seedRatioLimit * torrent.sizeWhenDone)} <span className="hint">({torrent.seedRatioLimit})</span>]</>}
+        <dt className="TorrentDetails-Label">Uploaded</dt>
+        <dd className="TorrentDetails-Value">
+          {formatBytes(torrent.uploadedEver)} <span className="hint">({torrent.uploadRatio.toFixed(2)})</span>
+          {torrent.seedRatioLimit > torrent.uploadRatio && <> [Limit: {formatBytes(torrent.seedRatioLimit * torrent.sizeWhenDone)} <span className="hint">({torrent.seedRatioLimit})</span>]</>}
         </dd>
-        <dt>Seeds</dt>
-        <dd>{seedCount}</dd>
+        <dt className="TorrentDetails-Label">Seeds</dt>
+        <dd className="TorrentDetails-Value">{seedCount}</dd>
         { torrent.peers.length > 0 &&
           <>
-            <dt>Peers</dt>
-            <dd>
+            <dt className="TorrentDetails-Label">Peers</dt>
+            <dd className="TorrentDetails-Value">
               <PeerIcons peers={torrent.peers} />
             </dd>
           </>
         }
-        <dt>Available</dt>
-        <dd>
+        <dt className="TorrentDetails-Label">Available</dt>
+        <dd className="TorrentDetails-Value">
           { (100 * (torrent.desiredAvailable + torrent.downloadedEver) / torrent.sizeWhenDone).toFixed() }%
         </dd>
-        <dt>Pieces</dt>
-        <dd>{torrent.pieceCount} × {formatBytes(torrent.pieceSize)}</dd>
+        <dt className="TorrentDetails-Label">Pieces</dt>
+        <dd className="TorrentDetails-Value">{torrent.pieceCount} × {formatBytes(torrent.pieceSize)}</dd>
         { torrent.files &&
           <>
-            <dt>Files</dt>
-            <dd style={{maxHeight:"50vh",overflowY:"auto"}}>
+            <dt className="TorrentDetails-Label">Files</dt>
+            <dd className="TorrentDetails-Value TorrentDetails-FilesPanel" style={{maxHeight:"50vh",overflowY:"auto"}}>
               <FileTreeList files={torrent.files} onRenameClick={handleRename} pathMapping={pathMapping} onHoverStart={handleFileHoverStart} onHoverEnd={handleFileHoverEnd} />
             </dd>
           </>
         }
       </dl>
-      { torrent.pieces && <PieceMap pieces={torrent.pieces} count={torrent.pieceCount} highlightRange={pieceHighlightRange} /> }
+      { torrent.pieces && <div className="TorrentDetails-PieceMapPanel"><PieceMap pieces={torrent.pieces} count={torrent.pieceCount} highlightRange={pieceHighlightRange} /></div> }
     </div>
   );
 }

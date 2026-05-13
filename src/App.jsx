@@ -183,7 +183,7 @@ function App() {
                   >
                     {name}
                   </div>
-                  <button onClick={() => closeTorrent(id)}>❌</button>
+                  <button className="TorrentTabCloseButton" onClick={() => closeTorrent(id)}>❌</button>
                 </li>
               );
             })
