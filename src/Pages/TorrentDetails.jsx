@@ -294,10 +294,11 @@ export function TorrentDetails({ torrent, transmission, pathMappings }) {
               <>
                 <dt className="TorrentDetails-Label">Downloaded</dt>
               <dd className="TorrentDetails-Value">
-                <span title={`${torrent.downloadedEver} bytes`}>{formatBytes(torrent.downloadedEver)}</span> <span className="hint">{(100 * torrent.percentDone).toFixed(1)}%</span>
+                <span title={`${torrent.downloadedEver} bytes`}>{formatBytes(torrent.downloadedEver)}</span> <span className="hint">{(100 * torrent.percentDone).toFixed(1)}%</span>{' '}
                 {torrent.leftUntilDone > 0 &&
                   <>
-                    (<span title={`${torrent.leftUntilDone} bytes`}>{formatBytes(torrent.leftUntilDone)} remaining</span> <span className="hint">{torrent.leftUntilDone > 0 ? (100 * torrent.desiredAvailable / torrent.leftUntilDone).toFixed(1) + '%' : '—'} available</span>)</>
+                    (<span title={`${torrent.leftUntilDone} bytes`}>{formatBytes(torrent.leftUntilDone)} remaining</span> <span className="hint">{torrent.leftUntilDone > 0 ? (100 * torrent.desiredAvailable / torrent.leftUntilDone).toFixed(1) + '%' : '—'} available</span>)
+                  </>
                 }</dd>
               </>}
             <dt className="TorrentDetails-Label">Added</dt>
@@ -350,7 +351,7 @@ export function TorrentDetails({ torrent, transmission, pathMappings }) {
             }
             <dt className="TorrentDetails-Label">Uploaded</dt>
             <dd className="TorrentDetails-Value">
-              {formatBytes(torrent.uploadedEver)}
+              {formatBytes(torrent.uploadedEver)}{' '}
               {torrent.uploadRatio >= 0 &&
                 <>
                   <span className="hint">({torrent.uploadRatio.toFixed(2)})</span>

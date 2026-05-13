@@ -103,7 +103,7 @@ function TreeItem ({
           <li key={key} className="file-item" onMouseEnter={() => onHoverStart?.(value)} onMouseLeave={() => onHoverEnd?.(value)}>
             {
               pathMapping && value.bytesCompleted === value.length ?
-              <a href={`${pathMapping}/${value.name}`}>{key}</a> :
+              <a href={`${pathMapping}/${value.name}`} target="_blank" rel="noopener noreferrer">{key}</a> :
               key
             } &ndash; {' '}
             { formatBytes(value.length) }{' '}

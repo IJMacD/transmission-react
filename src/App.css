@@ -671,6 +671,98 @@ dd > .TreeItem {
   gap: 0.75rem;
 }
 
+.MappingsPage {
+  display: grid;
+  gap: 1rem;
+  max-width: 980px;
+}
+
+.MappingsPage-Card {
+  background: #ffffff;
+  border: 1px solid #e7edf5;
+  border-radius: 12px;
+  box-shadow: 0 3px 10px rgba(16, 24, 40, 0.05);
+  overflow: hidden;
+}
+
+.MappingsPage-Table {
+  margin-bottom: 0;
+  box-shadow: none;
+  border-radius: 0;
+}
+
+.MappingsPage-Table td {
+  cursor: default;
+}
+
+.MappingsPage-Empty {
+  text-align: center;
+  color: #5b6f88;
+  padding: 1.1rem;
+}
+
+.MappingsPage-Base {
+  font-weight: 600;
+  color: #1f3b5d;
+}
+
+.MappingsPage-PathLink {
+  color: #2563eb;
+  text-decoration: none;
+  word-break: break-all;
+}
+
+.MappingsPage-PathLink:hover {
+  text-decoration: underline;
+}
+
+.MappingsPage-Input {
+  width: 100%;
+}
+
+.MappingsPage-Actions {
+  display: inline-flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.MappingsPage-ActionButton {
+  padding: 0.45rem 0.75rem;
+  font-size: 0.82rem;
+  line-height: 1.2;
+  border-radius: 999px;
+  border: 1px solid #d8e4f4;
+  background: #f7fbff;
+  color: #2d4f75;
+}
+
+.MappingsPage-ActionButton:hover {
+  background: #ebf4ff;
+  border-color: #bfdaff;
+  box-shadow: 0 6px 10px rgba(59, 130, 246, 0.12);
+}
+
+.MappingsPage-ActionButton--danger {
+  border-color: #ffd2d2;
+  background: #fff5f5;
+  color: #9f1d1d;
+}
+
+.MappingsPage-ActionButton--danger:hover {
+  border-color: #ffb3b3;
+  background: #ffecec;
+  box-shadow: 0 6px 10px rgba(239, 68, 68, 0.15);
+}
+
+.MappingsPage-AddRow {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) minmax(260px, 1.7fr) auto;
+  gap: 0.65rem;
+  padding: 0.9rem;
+  border-top: 1px solid #e7edf5;
+  background: #fbfdff;
+}
+
 .TorrentDetails-TrackerTable th,
 .TorrentDetails-TrackerTable td {
   padding: 0.85rem 0.9rem;
@@ -691,6 +783,15 @@ dd > .TreeItem {
   padding: 1.25rem 1rem;
 }
 @media (max-width: 900px) {
+  .MappingsPage-AddRow {
+    grid-template-columns: 1fr;
+  }
+
+  .MappingsPage-Actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
   .TorrentDetails-StatsList {
     grid-template-columns: 1fr;
   }
