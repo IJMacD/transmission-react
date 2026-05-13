@@ -618,6 +618,59 @@ dd > .TreeItem {
   min-width: 920px;
 }
 
+.SettingsPage {
+  display: grid;
+  gap: 1rem;
+  max-width: 840px;
+}
+
+.SettingsPage-Form {
+  display: grid;
+  gap: 1rem;
+}
+
+.SettingsPage-Section {
+  background: #ffffff;
+  border: 1px solid #e7edf5;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 3px 10px rgba(16, 24, 40, 0.05);
+  display: grid;
+  gap: 0.8rem;
+}
+
+.SettingsPage-Section h2 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.SettingsPage-Field {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.SettingsPage-Field span {
+  font-size: 0.88rem;
+  color: #5b6f88;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+}
+
+.SettingsPage-Field--checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  color: #1f3b5d;
+}
+
+.SettingsPage-Actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
 .TorrentDetails-TrackerTable th,
 .TorrentDetails-TrackerTable td {
   padding: 0.85rem 0.9rem;

@@ -13,6 +13,7 @@ import SearchPage from './Pages/SearchPage';
 import { useDataLog } from './hooks/useDataLog';
 import { MappingsPage } from './Pages/MappingsPage';
 import { RSSFeedPage } from './Pages/RSSFeedPage';
+import { SettingsPage } from './Pages/SettingsPage';
 
 const NO_TORRENT = -1;
 
@@ -218,6 +219,7 @@ function App() {
           <li onClick={() => setPage("peers")} className={page === "peers"?"selected":""}>Peers</li>
           <li onClick={() => setPage("search")} className={page === "search"?"selected":""}>Search</li>
           <li onClick={() => setPage("mappings")} className={page === "mappings"?"selected":""}>Mappings</li>
+          <li onClick={() => setPage("settings")} className={page === "settings" ? "selected" : ""}>Settings</li>
           <li><button onClick={handleAddLink}>Add Magnet</button></li>
           <li><button onClick={handleAddRSS}>Load RSS</button></li>
         </ul>
@@ -239,6 +241,10 @@ function App() {
         {
           page === "mappings" &&
           <MappingsPage mappings={pathMappings} setMappings={setPathMappings} />
+        }
+        {
+          page === "settings" &&
+          <SettingsPage transmission={tmRef.current} sessionData={sessionData} onSessionUpdated={setSessionData} />
         }
         {
           page === "rss" &&

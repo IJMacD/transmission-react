@@ -426,6 +426,13 @@ export default class Transmission {
         return this.rpc({ method: "session-set", arguments: { [name]: value } });
     }
 
+    /**
+     * @param {Record<string, any>} values
+     */
+    setSessionFields (values) {
+        return this.rpc({ method: "session-set", arguments: values });
+    }
+
 
     /**
      * @param {number|string} ids
