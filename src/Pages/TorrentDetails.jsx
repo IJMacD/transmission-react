@@ -7,7 +7,7 @@ import { useDataLog } from '../hooks/useDataLog';
 import { ProgressGraph } from '../Components/ProgressGraph';
 import PieceMap from '../Components/PieceMap';
 
-/** @typedef {{ id: number, tier: number, host: string, announce: string, isBackup: boolean, hasAnnounced: boolean, hasScraped: boolean, announceState: number, lastAnnounceTime: number, lastAnnounceResult: string, lastScrapeTime: number, lastScrapeResult: string, seederCount: number, leecherCount: number, scrapeState: number }} TrackerStat */
+/** @typedef {{ id: number, tier: number, host: string, announce: string, isBackup: boolean, hasAnnounced: boolean, hasScraped: boolean, announceState: number, lastAnnounceTime: number, lastAnnounceResult: string, lastScrapeTime: number, lastScrapeResult: string, seederCount: number, leecherCount: number, scrapeState: number, nextAnnounceTime: number, nextScrapeTime: number }} TrackerStat */
 /** @typedef {{ address: string, clientName: string, clientIsChoked: boolean, clientIsInterested: boolean, flagStr: string, isDownloadingFrom: boolean, isEncrypted: boolean, isIncoming: boolean, isUploadingTo: boolean, isUTP: boolean, peerIsChoked: boolean, peerIsInterested: boolean, port: number, progress: number, rateToClient: number, rateToPeer: number }} PeerStat */
 
 const TRACKER_ANNOUNCE_STATE_LABELS = {
@@ -171,6 +171,23 @@ export function TorrentDetails({ torrent, transmission, pathMappings }) {
   }
 
   /**
+   * @param {number} state
+   * @param {number} nextTime
+   */
+  function formatTrackerCountdown(state, nextTime) {
+    if (state !== 1) {
+      return null;
+    }
+
+    if (!nextTime || nextTime <= 0) {
+      return null;
+    }
+
+    const secondsRemaining = Math.max(0, Math.floor(nextTime * 1000 - Date.now()) / 1000);
+    return formatDuration(secondsRemaining);
+  }
+
+  /**
    * @param {PeerStat} peer
    */
   function formatPeerDirection(peer) {
@@ -270,11 +287,18 @@ export function TorrentDetails({ torrent, transmission, pathMappings }) {
               </span>
             </dd>
             <dt className="TorrentDetails-Label">Size</dt>
-            <dd className="TorrentDetails-Value" title={`${torrent.sizeWhenDone} bytes`}>{formatBytes(torrent.sizeWhenDone)}</dd>
+            <dd className="TorrentDetails-Value" title={`${torrent.sizeWhenDone} bytes`}>
+              {torrent.sizeWhenDone > 0 ? formatBytes(torrent.sizeWhenDone) : "—"}
+            </dd>
             {torrent.percentDone < 1 &&
               <>
                 <dt className="TorrentDetails-Label">Downloaded</dt>
-                <dd className="TorrentDetails-Value"><span title={`${torrent.downloadedEver} bytes`}>{formatBytes(torrent.downloadedEver)}</span> <span className="hint">{(100 * torrent.percentDone).toFixed(1)}%</span> (<span title={`${torrent.leftUntilDone} bytes`}>{formatBytes(torrent.leftUntilDone)} remaining</span> <span className="hint">{(100 * torrent.desiredAvailable / torrent.leftUntilDone).toFixed(1)}% available</span>)</dd>
+              <dd className="TorrentDetails-Value">
+                <span title={`${torrent.downloadedEver} bytes`}>{formatBytes(torrent.downloadedEver)}</span> <span className="hint">{(100 * torrent.percentDone).toFixed(1)}%</span>
+                {torrent.leftUntilDone > 0 &&
+                  <>
+                    (<span title={`${torrent.leftUntilDone} bytes`}>{formatBytes(torrent.leftUntilDone)} remaining</span> <span className="hint">{torrent.leftUntilDone > 0 ? (100 * torrent.desiredAvailable / torrent.leftUntilDone).toFixed(1) + '%' : '—'} available</span>)</>
+                }</dd>
               </>}
             <dt className="TorrentDetails-Label">Added</dt>
             <dd className="TorrentDetails-Value">{new Date(torrent.addedDate * 1000).toISOString()}</dd>
@@ -326,8 +350,13 @@ export function TorrentDetails({ torrent, transmission, pathMappings }) {
             }
             <dt className="TorrentDetails-Label">Uploaded</dt>
             <dd className="TorrentDetails-Value">
-              {formatBytes(torrent.uploadedEver)} <span className="hint">({torrent.uploadRatio.toFixed(2)})</span>
-              {torrent.seedRatioLimit > torrent.uploadRatio && <> [Limit: {formatBytes(torrent.seedRatioLimit * torrent.sizeWhenDone)} <span className="hint">({torrent.seedRatioLimit})</span>]</>}
+              {formatBytes(torrent.uploadedEver)}
+              {torrent.uploadRatio >= 0 &&
+                <>
+                  <span className="hint">({torrent.uploadRatio.toFixed(2)})</span>
+                  {torrent.seedRatioLimit > torrent.uploadRatio && <> [Limit: {formatBytes(torrent.seedRatioLimit * torrent.sizeWhenDone)} <span className="hint">({torrent.seedRatioLimit})</span>]</>}
+                </>
+              }
             </dd>
             <dt className="TorrentDetails-Label">Seeds</dt>
             <dd className="TorrentDetails-Value">{seedCount}</dd>
@@ -341,7 +370,7 @@ export function TorrentDetails({ torrent, transmission, pathMappings }) {
             }
             <dt className="TorrentDetails-Label">Available</dt>
             <dd className="TorrentDetails-Value">
-              { (100 * (torrent.desiredAvailable + torrent.downloadedEver) / torrent.sizeWhenDone).toFixed() }%
+              {torrent.sizeWhenDone > 0 ? (100 * (torrent.desiredAvailable + torrent.downloadedEver) / torrent.sizeWhenDone).toFixed() + '%' : '—'}
             </dd>
             <dt className="TorrentDetails-Label">Pieces</dt>
             <dd className="TorrentDetails-Value">{torrent.pieceCount} × {formatBytes(torrent.pieceSize)}</dd>
@@ -400,14 +429,24 @@ export function TorrentDetails({ torrent, transmission, pathMappings }) {
                     </td>
                     <td>{tracker.isBackup ? "Yes" : "No"}</td>
                     <td>{tracker.hasAnnounced ? "Yes" : "No"}</td>
-                    <td>{formatTrackerState(tracker.announceState, TRACKER_ANNOUNCE_STATE_LABELS)}</td>
+                    <td>
+                      <div>{formatTrackerState(tracker.announceState, TRACKER_ANNOUNCE_STATE_LABELS)}</div>
+                      {formatTrackerCountdown(tracker.announceState, tracker.nextAnnounceTime) && (
+                        <div className="hint">in {formatTrackerCountdown(tracker.announceState, tracker.nextAnnounceTime)}</div>
+                      )}
+                    </td>
                     <td>
                       <div>{formatTrackerDate(tracker.lastAnnounceTime)}</div>
                       <div className="hint">{tracker.lastAnnounceResult || "—"}</div>
                     </td>
                     <td>{formatTrackerCount(tracker.seederCount)}</td>
                     <td>{formatTrackerCount(tracker.leecherCount)}</td>
-                    <td>{formatTrackerState(tracker.scrapeState, TRACKER_SCRAPE_STATE_LABELS)}</td>
+                    <td>
+                      <div>{formatTrackerState(tracker.scrapeState, TRACKER_SCRAPE_STATE_LABELS)}</div>
+                      {formatTrackerCountdown(tracker.scrapeState, tracker.nextScrapeTime) && (
+                        <div className="hint">in {formatTrackerCountdown(tracker.scrapeState, tracker.nextScrapeTime)}</div>
+                      )}
+                    </td>
                     <td>
                       <div>{formatTrackerDate(tracker.lastScrapeTime)}</div>
                       <div className="hint">{tracker.lastScrapeResult || "—"}</div>
